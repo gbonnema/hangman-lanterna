@@ -52,6 +52,18 @@ public class Rectangle {
 	public Rectangle() {
 		// need zero arg constructor
 	}
+	
+	/**
+	 * Copy constructor.
+	 * 
+	 * @param aRect the rectangle from which we copy construct
+	 */
+	public Rectangle(final Rectangle aRect) {
+		setX(aRect.getX());
+		setY(aRect.getY());
+		setWidth(aRect.getWidth());
+		setHeight(aRect.getHeight());
+	}
 
 	/**
 	 * The constructor, that defines only the size but no location.

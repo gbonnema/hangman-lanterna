@@ -147,8 +147,9 @@ public class YesNoDialog {
 			final boolean aDefault) {
 		result = aDefault;
 
+		final int nrEdges = 4;
 		int mWidth = Math.max(aYesLabel.length() + aNoLabel.length()
-				+ (4 * WIDTH_FACTOR),
+				+ (nrEdges * WIDTH_FACTOR),
 				Math.max(aTitle.length() + 2, MIN_TITLE_LEN));
 		mWidth = Math.min(Toolkit.getScreenWidth() - WIDTH_FACTOR, mWidth);
 
@@ -172,10 +173,11 @@ public class YesNoDialog {
 		int btnY = mHeight + (HEIGHT_FACTOR / 2);
 		int btnWide = WIDTH_FACTOR
 				+ Math.max(aYesLabel.length(), aNoLabel.length());
-		int btnStep = ((mWidth - (2 * btnWide)) / 3) + 1;
+		final int nrPads = 3;
+		int btnPadding = ((mWidth - (2 * btnWide)) / nrPads) + 1;
 
 		mYes = new Button(aYesLabel);
-		int btnX = btnStep;
+		int btnX = btnPadding;
 
 		mYes.addListener(
 				new ActionListener() {
@@ -188,7 +190,7 @@ public class YesNoDialog {
 				WidgetsConstants.ALIGNMENT_CENTER,
 				WidgetsConstants.ALIGNMENT_CENTER);
 
-		btnX = btnWide + (2 * btnStep);
+		btnX = btnWide + (2 * btnPadding);
 
 		mNo = new Button(aNoLabel);
 		mNo.addListener(
