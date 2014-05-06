@@ -878,7 +878,7 @@ class WindowWidgetComparator implements Comparator {
 	 
 	 */
 	static int getDistance(Widget aWidget, Widget aWidgetRef) {
-		return aWidget.getRectangle().distanceFrom(aWidgetRef.getRectangle());
+		return aWidget.getRectangle().distanceSquaredFrom(aWidgetRef.getRectangle());
 	}
 
 	/**
