@@ -15,8 +15,9 @@ import java.util.HashSet;
  * 
  * <p>
  * This class implements the debugging for jcurses applications. Developing a
- * jcurses application you can't use <code>System.out.println</code> calls,
- * because the console is used for painting. Instead of this you have to use
+ * <code>jcurses</code> application you can't use 
+ * <code>System.out.println</code> calls, because the console is used 
+ * for painting. Instead of this you have to use
  * <code>system</code> or <code>debug</code> methods of this class. These made
  * nothing, if the system property "jcurses.protocol.filename" isn't defined, if
  * these is defined, log messages are written to the file, whose name is defined

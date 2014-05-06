@@ -1,4 +1,6 @@
-
+/**
+ * jcurses.widgets.
+ */
 package jcurses.widgets;
 
 import jcurses.system.CharColor;
