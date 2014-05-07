@@ -1,3 +1,7 @@
+/**
+ * jcurses.event. 
+ */
+
 package jcurses.event;
 
 import jcurses.widgets.Widget;
@@ -8,7 +12,12 @@ import jcurses.widgets.Widget;
 */
 public class ActionEvent extends Event {
 	
-	public ActionEvent(Widget source) {
+	/**
+	 * Constructor.
+	 * @param source the widget giving rise 
+	 * to the event.
+	 */
+	public ActionEvent(final Widget source) {
 		super(source);
 	}
 

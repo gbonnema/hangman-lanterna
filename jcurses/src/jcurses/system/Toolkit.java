@@ -278,12 +278,15 @@ public final class Toolkit {
 			final int aPos, final short mPair, final long mAttr) {
 
 		Rectangle mClip = getCurrentClipRectangle();
+		/* formatter:off */
 		if (mClip == null
-				|| (isBetween(aX, mClip.getLeft(), mClip.getRight()) && isBetween(
-						aY, mClip.getTop(), mClip.getBottom()))) {
+				|| (isBetween(aX, mClip.getLeft(), mClip.getRight()) 
+				&& isBetween(aY, mClip.getTop(), mClip.getBottom()))) {
+		
 
 			drawCorner(aX, aY, aPos, mPair, mAttr);
 		}
+		/* formatter:on */
 	}
 
 	/**
