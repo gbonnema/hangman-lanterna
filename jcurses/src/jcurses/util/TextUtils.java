@@ -1,8 +1,7 @@
 /*
- *  Created on Apr 21, 2004
- *
+ * Created on April 21, 2004
+ * 
  * Commented 2008-11-19 by Jack Woehr jwoehr at users dot sourceforge dot net
- *
  */
 package jcurses.util;
 
@@ -11,13 +10,30 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * A class for managing text, e.g, wrapping it
+ * A utility class for managing text, e.g, wrapping it.
+ * 
+ * The method <code>wrapLines (message, wrapLength)</code> wraps a line at or
+ * before position at wrapLength.
+ * 
+ * The method <code>replicate(char, length)</code> fills an area for length with
+ * char.
+ * 
+ * The method <code>breakLines(text, maxWidth)</code> breaks a text into lines
+ * according to the internal line ends or the maxWidth.
+ * 
  * 
  * @author alewis
  */
-public class TextUtils {
+public final class TextUtils {
+
 	/**
-	 * Wrap String into Array of String per a wrap length
+	 * Private default constructor to prevent instantiation.
+	 */
+	private TextUtils() {
+	}
+
+	/**
+	 * Wrap String into Array of String per wrap length.
 	 * 
 	 * @param aMsg
 	 *            Original text
@@ -25,14 +41,14 @@ public class TextUtils {
 	 *            wrap length
 	 * @return Array of String representing lines each <= length
 	 */
-	public static String[] wrapLines(String aMsg, int aLen) {
-		List mLines = new LinkedList();
+	public static String[] wrapLines(final String aMsg, final int aLen) {
+		List<String> mLines = new LinkedList<>();
 
 		if (aMsg == null) {
 			return new String[0];
 		}
 
-		String lines[] = aMsg.split("\n");
+		String[] lines = aMsg.split("\n");
 
 		for (int idx = 0; idx < lines.length; idx++) {
 			int curLen = lines[idx].length();
@@ -61,8 +77,8 @@ public class TextUtils {
 			mLines.add(lines[idx].substring(pos));
 		}
 
-		Object tmp[] = mLines.toArray();
-		String result[] = new String[tmp.length];
+		Object[] tmp = mLines.toArray();
+		String[] result = new String[tmp.length];
 
 		for (int idx = 0; idx < tmp.length; idx++) {
 			result[idx] = (String) tmp[idx];
@@ -72,7 +88,7 @@ public class TextUtils {
 	}
 
 	/**
-	 * Create a String filled with a single character
+	 * Create a String filled with a single character.
 	 * 
 	 * @param aChar
 	 *            the character to fill with
@@ -80,7 +96,7 @@ public class TextUtils {
 	 *            how many to fill with
 	 * @return A string consisting of the char repeated aLen times
 	 */
-	public static String replicate(char aChar, int aLen) {
+	public static String replicate(final char aChar, final int aLen) {
 		StringBuffer mBuf = new StringBuffer(aLen);
 		for (int mIdx = 0; mIdx < aLen; mIdx++) {
 			mBuf.append(aChar);
@@ -89,7 +105,7 @@ public class TextUtils {
 	}
 
 	/**
-	 * Break a String into lines of text at embedded linefeed chars or at max
+	 * Break a String into lines of text at embedded line feed chars or at max
 	 * width, whichever comes first each line. Checks for carriage-return chars
 	 * in if-else but ignores them.
 	 * 
@@ -99,8 +115,8 @@ public class TextUtils {
 	 *            longest before split if no lf found
 	 * @return List of String
 	 */
-	public static List<String> breakLines(final String text, 
-			final int maxWidth) {
+	public static List<String>
+			breakLines(final String text, final int maxWidth) {
 		ArrayList<String> list = new ArrayList<String>();
 		StringBuffer buffer = new StringBuffer();
 
@@ -119,7 +135,7 @@ public class TextUtils {
 
 				buffer = new StringBuffer();
 			} else if (c == '\r') {
-				continue;		// skip character
+				continue; // skip character
 			} else {
 				buffer.append(c);
 			}
@@ -141,7 +157,7 @@ public class TextUtils {
 	 *            length of field
 	 * @return the centered string in field of blank
 	 */
-	public static String center(String aStr, int aLen) {
+	public static String center(final String aStr, final int aLen) {
 		double mDiff = (aLen - aStr.length()) / 2.0;
 		return replicate(' ', (int) Math.floor(mDiff)) + aStr
 				+ replicate(' ', (int) Math.ceil(mDiff));
@@ -156,12 +172,12 @@ public class TextUtils {
 	 *            length of field
 	 * @return the right-justified string
 	 */
-	public static String leftPad(String aStr, int aLen) {
+	public static String leftPad(final String aStr, final int aLen) {
 		return replicate(' ', aLen - aStr.length()) + aStr;
 	}
 
 	/**
-	 * Center each String uniformly in in an Array of String
+	 * Center each String uniformly in in an Array of String.
 	 * 
 	 * @param aLines
 	 *            the Strings to center
@@ -169,7 +185,7 @@ public class TextUtils {
 	 *            uniform field length of output strings
 	 * @return Array of centered String
 	 */
-	public static String[] center(String aLines[], int aLen) {
+	public static String[] center(final String[] aLines, final int aLen) {
 		for (int idx = 0; idx < aLines.length; idx++) {
 			aLines[idx] = center(aLines[idx], aLen);
 		}
@@ -187,7 +203,7 @@ public class TextUtils {
 	 *            uniform field length of output strings
 	 * @return Array of right-justified string
 	 */
-	public static String[] leftPad(String aLines[], int aLen) {
+	public static String[] leftPad(final String[] aLines, final int aLen) {
 		for (int idx = 0; idx < aLines.length; idx++) {
 			aLines[idx] = leftPad(aLines[idx], aLen);
 		}
@@ -203,7 +219,7 @@ public class TextUtils {
 	 *            the lines to merge
 	 * @return Resultant String
 	 */
-	public static String mergeLines(String aLines[]) {
+	public static String mergeLines(final String[] aLines) {
 		StringBuffer mOut = new StringBuffer();
 
 		for (int idx = 0; idx < aLines.length; idx++) {
@@ -216,7 +232,7 @@ public class TextUtils {
 	}
 
 	/**
-	 * Wrap the lines and then marge for wrapped paragraph
+	 * Wrap the lines and then marge for wrapped paragraph.
 	 * 
 	 * @param aMsg
 	 *            Original String
@@ -224,7 +240,7 @@ public class TextUtils {
 	 *            field length of line in wrapped paragraph
 	 * @return the paragraph
 	 */
-	public static String wrap(String aMsg, int aLen) {
+	public static String wrap(final String aMsg, final int aLen) {
 		return mergeLines(wrapLines(aMsg, aLen));
 	}
 }

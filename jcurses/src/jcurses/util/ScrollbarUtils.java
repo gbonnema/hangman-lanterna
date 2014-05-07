@@ -1,65 +1,88 @@
-
 package jcurses.util;
 
 import jcurses.system.CharColor;
 import jcurses.system.Toolkit;
 
 /**
- * This class is used be widgets to painting scrollbars. There isn't a scrollbar widget in the library, instead of this, instead of this widget's that has
- * scrollbars as part, use this class for painting.
+ * This class is used be widgets to painting scroll bars. There isn't a scroll
+ * bar widget in the library, instead of this, instead of this widget's that has
+ * scroll bars as part, use this class for painting.
  */
-public class ScrollbarUtils
-{
+public final class ScrollbarUtils {
 
-  public static final int        HORIZONTAL = 0;
-  public static final int        VERTICAL   = 1;
+	/**
+	 * A private default constructor to prevent instantiation.
+	 */
+	private ScrollbarUtils() {
+	}
 
-  private static final CharColor __color    = new CharColor(CharColor.BLACK, CharColor.WHITE, CharColor.REVERSE);
+	/**
+	 * 
+	 */
+	public static final int HORIZONTAL = 0;
+	/**
+	 * 
+	 */
+	public static final int VERTICAL = 1;
 
-  /**
-   * The method to paint a scrollbar.
-   * 
-   * @param start the start coordinate of the scrollbar (x or y dependend of <code>alignment</code>
-   * @param end the end coordinate of the scrollbar (x or y dependend of <code>alignment</code>
-   * @param cst the width (height) of the scrollbars line
-   * @param firstPart the part of the scrollbar before the beam ( 0=> <1)
-   * @param lastPart the part of the scrollbar after the beam ( 0=> <1)
-   * @param alignment scrollbar alignment <code>HORIZONTAL</code> or <code>VERTICAL</code>
-   */
-  public static void drawScrollBar(int start, int end, int cst, float firstPart, float lastPart, int alignment)
-  {
-    if ( ( firstPart == 0 ) && ( lastPart == 0 ) )
-    {
-      //kein scrollbar, wenn alles sichtbar
-      return;
-    }
-    int length = end - start + 1;
-    float barLength2 = ( ( (float)( 1.0 - firstPart - lastPart ) ) * length );
-    int barLength = Math.round(barLength2);
+	/**
+	 * 
+	 */
+	private static final CharColor color = new CharColor(CharColor.BLACK,
+			CharColor.WHITE, CharColor.REVERSE);
 
-    barLength = ( barLength == 0 ) ? 1 : barLength;
+	/**
+	 * The method to paint a scroll bar.
+	 * 
+	 * @param start
+	 *            the start coordinate of the scroll bar (x or y dependent on
+	 *            <code>alignment</code>
+	 * @param end
+	 *            the end coordinate of the scroll bar (x or y dependent on
+	 *            <code>alignment</code>
+	 * @param cst
+	 *            the width (height) of the scroll bars line
+	 * @param firstPart
+	 *            the part of the scroll bar before the beam ( 0=> <1)
+	 * @param lastPart
+	 *            the part of the scroll bar after the beam ( 0=> <1)
+	 * @param alignment
+	 *            scroll bar alignment <code>HORIZONTAL</code> or
+	 *            <code>VERTICAL</code>
+	 */
+	public static void drawScrollBar(final int start, final int end,
+			final int cst, final float firstPart, final float lastPart,
+			final int alignment) {
+		if ((firstPart == 0) && (lastPart == 0)) {
+			// no scroll bar necessary if all is visible
+			return;
+		}
+		int length = end - start + 1;
+		float barLength2 = (((float) (1.0 - firstPart - lastPart)) * length);
+		int barLength = Math.round(barLength2);
 
-    int firstIntervall = Math.round(( firstPart * length ));
+		if (barLength == 0) {
+			barLength = 1;
+		}
 
-    while ( ( barLength + firstIntervall ) > ( length ) )
-    {
-      firstIntervall--;
-    }
+		int firstIntervall = Math.round((firstPart * length));
 
-    if ( lastPart == 0 )
-    {
-      firstIntervall = ( length - barLength );
-    }
+		while ((barLength + firstIntervall) > (length)) {
+			firstIntervall--;
+		}
 
-    if ( alignment == HORIZONTAL )
-    {
-      Toolkit.drawHorizontalThickLine(start + firstIntervall, cst, start + firstIntervall + barLength - 1, __color);
-    }
-    else
-    {
-      Toolkit.drawVerticalThickLine(cst, start + firstIntervall, start + firstIntervall + barLength - 1, __color);
-    }
+		if (lastPart == 0) {
+			firstIntervall = (length - barLength);
+		}
 
-  }
+		if (alignment == HORIZONTAL) {
+			Toolkit.drawHorizontalThickLine(start + firstIntervall, cst, start
+					+ firstIntervall + barLength - 1, color);
+		} else {
+			Toolkit.drawVerticalThickLine(cst, start + firstIntervall, start
+					+ firstIntervall + barLength - 1, color);
+		}
+
+	}
 
 }
