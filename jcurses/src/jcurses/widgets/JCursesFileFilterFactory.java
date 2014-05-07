@@ -15,8 +15,8 @@ public interface JCursesFileFilterFactory {
 	 *  Generate a file filter from a string.
 	 *
 	 * @param  filterString  string showing acceptable file patterns
-	 * @return               Filter object modelled on filterString
+	 * @return               Filter object modeled on filterString
 	 */
-	public FileFilter generateFileFilter(String filterString);
+	FileFilter generateFileFilter(String filterString);
 
 }

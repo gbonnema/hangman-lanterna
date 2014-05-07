@@ -1,182 +1,215 @@
-
 package jcurses.widgets;
 
 import jcurses.util.Rectangle;
 
-/***************************************************************************************************************************************************************
- * This class is a layout manager that works like as the <code>DefaultLayoutManager</code> with an difference: the painting rectangle is shared in many grid
- * cells and the constraints are stated not in real coodinates on the painting rectangle, but in 'grid-coordinates'
+/******************************************************************************
+ * This class is a layout manager that works like the
+ * <code>DefaultLayoutManager</code> with a difference: the painting rectangle
+ * is shared in many grid cells and the constraints are stated not in real
+ * coordinates on the painting rectangle, but in 'grid-coordinates'.
  */
 
-public class GridLayoutManager implements LayoutManager, WidgetsConstants
-{
+public class GridLayoutManager implements LayoutManager, WidgetsConstants {
 
-  private DefaultLayoutManager _defLayout = new DefaultLayoutManager();
-  private WidgetContainer      _father    = null;
+	/**
+	 * the default layout manager.
+	 */
+	private DefaultLayoutManager defLayout = new DefaultLayoutManager();
+	/**
+	 * Parent widget container.
+	 */
+	private WidgetContainer container = null;
+	/**
+	 *
+	 */
+	private int width = 0;
+	/**
+	 *
+	 */
+	private int height = 0;
+	/**
+	 * 
+	 */
+	private Grid grid = null;
 
-  private int                  _width     = 0;
-  private int                  _height    = 0;
+	/**
+	 * Bind the grid layout manager to a widget container. Throws a runtime
+	 * exception if it is already bound.
+	 * 
+	 * @param aContainer
+	 *            the widget container
+	 */
+	public final void bindToContainer(final WidgetContainer aContainer) {
+		if (container != null) {
+			throw new RuntimeException("Already bound!!!");
+		}
+		container = aContainer;
+	}
 
-  private Grid                 _grid      = null;
+	/**
+	 * Unbind from any widget container, if present.
+	 */
+	public final void unbindFromContainer() {
+		container = null;
+	}
 
-  public void bindToContainer(WidgetContainer container)
-  {
-    if ( _father != null )
-    {
-      throw new RuntimeException("Already bound!!!");
-    }
-    _father = container;
-  }
+	/**
+	 * The constructor.
+	 * 
+	 * @param aWidth
+	 *            the width of the grid ( in cells )
+	 * @param aHeight
+	 *            the height of the grid ( in cells )
+	 * 
+	 */
+	public GridLayoutManager(final int aWidth, final int aHeight) {
+		width = aWidth;
+		height = aHeight;
+	}
 
-  public void unbindFromContainer()
-  {
-    _father = null;
-  }
+	/**
+	 * Layout the specified widget with specified constraint. Throws a runtime
+	 * exception if the constraint is not a GridLayoutConstraint.
+	 * 
+	 * @param widget
+	 *            the widget.
+	 * @param constraint
+	 *            the constraint.
+	 */
+	public final void layout(final Widget widget, final Object constraint) {
+		if (!(constraint instanceof GridLayoutConstraint)) {
+			throw new RuntimeException("unknown constraint: "
+					+ constraint.getClass().getName());
+		}
+		Rectangle rect = container.getClientArea();
+		if (rect == null) {
+			rect = container.getSize();
+		}
 
-  /**
-   * The constructor
-   * 
-   * @param width the width of the grid ( in cells )
-   * @param height the height of the grid ( in cells )
-   *  
-   */
-  public GridLayoutManager(int width, int height)
-  {
-    _width = width;
-    _height = height;
-  }
+		grid = new Grid(rect, width, height);
+		defLayout.layout(widget, ((GridLayoutConstraint) constraint)
+				.getDefaultLayoutConstraint(grid));
 
-  public void layout(Widget widget, Object constraint)
-  {
-    if ( ! ( constraint instanceof GridLayoutConstraint ) )
-    {
-      throw new RuntimeException("unknown constraint: " + constraint.getClass().getName());
-    }
+	}
 
-    Rectangle rect = ( _father.getClientArea() == null ) ? _father.getSize() : _father.getClientArea();
-    _grid = new Grid(rect, _width, _height);
-    _defLayout.layout(widget, ( (GridLayoutConstraint)constraint ).getDefaultLayoutConstraint(_grid));
+	/**
+	 * Adds a widget to the bounded container.
+	 * 
+	 * @param widget
+	 *            widget to be added
+	 * @param x
+	 *            the x coordinate of the top left corner of the rectangle,
+	 *            within that the widget is placed
+	 * @param y
+	 *            the y coordinate of the top left corner of the rectangle,
+	 *            within that the widget is placed
+	 * @param rectWidth
+	 *            the width of the rectangle, within that the widget is placed
+	 * @param rectHeight
+	 *            the height of the rectangle, within that the widget is placed
+	 * @param verticalConstraint
+	 *            vertical alignment constraint. Following values a possible:
+	 *            <code>WidgetConstraints.ALIGNMENT_CENTER</code>,
+	 *            <code>WidgetConstraints.ALIGNMENT_TOP</code>,
+	 *            <code>WidgetConstraints.ALIGNMENT_BOTTOM</code>
+	 * @param horizontalConstraint
+	 *            vertical alignment constraint, Following values are possible:
+	 *            *<code>WidgetConstraints.ALIGNMENT_CENTER</code>,
+	 *            <code>WidgetConstraints.ALIGNMENT_LEFT</code>,
+	 *            <code>WidgetConstraints.ALIGNMENT_RIGHT</code>
+	 */
+	public final void addWidget(final Widget widget, final int x, final int y,
+			final int rectWidth, final int rectHeight,
+			final int verticalConstraint, final int horizontalConstraint) {
+		container.addWidget(widget, new GridLayoutConstraint(x, y, rectWidth,
+				rectHeight, horizontalConstraint, verticalConstraint));
+	}
 
-  }
+	/**
+	 * Removes a widget.
+	 * 
+	 * @param widget
+	 *            widget to remove
+	 */
+	public final void removeWidget(final Widget widget) {
+		container.removeWidget(widget);
 
-  /**
-   * Adds a widget to the boundeb container
-   * 
-   * @param widget widget to be added
-   * @param x the x coordinate of the top left corner of the rectangle, within that the widget is placed
-   * @param y the y coordinate of the top left corner of the rectangle, within that the widget is placed
-   * @param width the width of the rectangle, within that the widget is placed
-   * @param height the hight of the rectangle, within that the widget is placed
-   * @param verticalConstraint vertical alignment constraint. Following values a possible: <code>WidgetConstraints.ALIGNMENT_CENTER</code>,
-   *          <code>WidgetConstraints.ALIGNMENT_TOP</code>,<code>WidgetConstraints.ALIGNMENT_BOTTOM</code>
-   * @param horizontalConstraint vertical alignment constraint, Following values are possible: *<code>WidgetConstraints.ALIGNMENT_CENTER</code>,
-   *          <code>WidgetConstraints.ALIGNMENT_LEFT</code>,<code>WidgetConstraints.ALIGNMENT_RIGHT</code>
-   */
-  public void addWidget(Widget widget, int x, int y, int width, int height, int verticalConstraint, int horizontalConstraint)
-  {
-    _father.addWidget(widget, new GridLayoutConstraint(x, y, width, height, horizontalConstraint, verticalConstraint));
-
-  }
-
-  /**
-   * Removes a widget
-   * 
-   * @param widget widget to remove
-   */
-  public void removeWidget(Widget widget)
-  {
-    _father.removeWidget(widget);
-
-  }
+	}
 }
 
-class GridLayoutConstraint
-{
+/**
+ * 
+ * This class describes a GridLayout constraint.
+ * 
+ */
+class GridLayoutConstraint {
 
-  int x                    = 0;
-  int y                    = 0;
-  int width                = 0;
-  int height               = 0;
-  int horizontalConstraint = 0;
-  int verticalConstraint   = 0;
+	/**
+	 * 
+	 */
+	private int x = 0;
+	/**
+	 * 
+	 */
+	private int y = 0;
+	/**
+	 * 
+	 */
+	private int width = 0;
+	/**
+	 * 
+	 */
+	private int height = 0;
+	/**
+	 * 
+	 */
+	private int horizontalConstraint = 0;
+	/**
+	 * 
+	 */
+	private int verticalConstraint = 0;
 
-  GridLayoutConstraint(int aX, int aY, int aWidth, int aHeight, int aHorizontalConstraint, int aVerticalConstraint)
-  {
-    this.x = aX;
-    this.y = aY;
-    this.width = aWidth;
-    this.height = aHeight;
-    this.horizontalConstraint = aHorizontalConstraint;
-    this.verticalConstraint = aVerticalConstraint;
-  }
+	/**
+	 * The constructor for the GridLayoutConstraint.
+	 * 
+	 * @param aX
+	 *            The x coordinate.
+	 * @param aY
+	 *            The y coordinate.
+	 * @param aWidth
+	 *            the width.
+	 * @param aHeight
+	 *            the height.
+	 * @param aHorizontalConstraint
+	 *            the horizontal constraint.
+	 * @param aVerticalConstraint
+	 *            the vertical constraint.
+	 */
+	public GridLayoutConstraint(final int aX, final int aY, final int aWidth,
+			final int aHeight, final int aHorizontalConstraint,
+			final int aVerticalConstraint) {
+		this.x = aX;
+		this.y = aY;
+		this.width = aWidth;
+		this.height = aHeight;
+		this.horizontalConstraint = aHorizontalConstraint;
+		this.verticalConstraint = aVerticalConstraint;
+	}
 
-  DefaultLayoutConstraint getDefaultLayoutConstraint(Grid grid)
-  {
+	/**
+	 * Retrieve the default layout constraint.
+	 * 
+	 * @param grid
+	 *            the grid.
+	 * @return the default layout constraint.
+	 */
+	public DefaultLayoutConstraint getDefaultLayoutConstraint(final Grid grid) {
 
-    Rectangle rect = grid.getRectangle(x, y, width, height);
-    return new DefaultLayoutConstraint(rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight(), horizontalConstraint, verticalConstraint);
+		Rectangle rect = grid.getRectangle(x, y, width, height);
+		return new DefaultLayoutConstraint(rect.getX(), rect.getY(),
+				rect.getWidth(), rect.getHeight(), horizontalConstraint,
+				verticalConstraint);
 
-  }
-
-}
-
-class Grid
-{
-
-  int[] _widths;
-  int[] _heights;
-
-  Grid(Rectangle rect, int width, int height)
-  {
-    if ( ( ( rect.getWidth() / width ) < 1 ) || ( ( rect.getHeight() / height ) < 1 ) )
-    {
-      throw new RuntimeException(" the grid is to fine: " + rect.getWidth() + ":" + rect.getHeight() + ":" + width + ":" + height);
-    }
-
-    _widths = new int[width];
-    _heights = new int[height];
-
-    fillArray(_widths, rect.getWidth(), width);
-    fillArray(_heights, rect.getHeight(), height);
-
-  }
-
-  private void fillArray(int[] array, int rectWidth, int width)
-  {
-    int mod = rectWidth % width;
-    int cellWidth = rectWidth / width;
-
-    for ( int i = 0; i < width; i++ )
-    {
-      if ( mod > 0 )
-      {
-        array[i] = cellWidth + 1;
-        mod--;
-      }
-      else
-      {
-        array[i] = cellWidth;
-      }
-    }
-
-  }
-
-  Rectangle getRectangle(int x, int y, int width, int height)
-  {
-    return new Rectangle(getWidth(_widths, 0, x), getWidth(_heights, 0, y), getWidth(_widths, x, x + width), getWidth(_heights, y, y + height));
-
-  }
-
-  private int getWidth(int[] array, int begin, int end)
-  {
-    int width = 0;
-    for ( int i = begin; i < end; i++ )
-    {
-      width += array[i];
-    }
-
-    return width;
-  }
+	}
 
 }
-

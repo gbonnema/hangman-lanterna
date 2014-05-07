@@ -1,161 +1,167 @@
-
 package jcurses.widgets;
 
 import jcurses.event.ItemEvent;
 import jcurses.event.ItemListener;
 
 /**
- * This class implements a popup menu window. Such windows can be used for example to implemene menu bars ( currently not cantained in the library ). A popup
- * menu window gives a user the possibility to select and ivoke an item from a list and is than closed. Separator items can be used as by <code>MenuList</code>
- * described.
+ * This class implements a pop up menu window. Such windows can be used for
+ * example to implement menu bars ( currently not contained in the library ). A
+ * pop up menu window gives a user the possibility to select and invoke an item
+ * from a list and is than closed. Separator items can be used as by
+ * <code>MenuList</code> described.
  */
-public class PopUpMenu implements WidgetsConstants, ItemListener
-{
-  Dialog           _peer     = null;
-  String           _title    = null;
-  private MenuList _menuList = new MenuList();
-  private int      _x        = 0;
-  private int      _y        = 0;
+public class PopUpMenu implements WidgetsConstants, ItemListener {
 
-  /**
-   * The constructor
-   * 
-   * @param x the x coordinate of the dialog window's top left corner
-   * @param y the y coordinate of the dialog window's top left corner
-   * @param title window's title
-   */
-  public PopUpMenu(int x, int y, String title)
-  {
-    _title = title;
-    _x = x;
-    _y = y;
-  }
+	private ModalDialog peer = null;
+	private MenuList menuList = new MenuList();
+	private int x = 0;
+	private int y = 0;
 
-  /**
-   * DOCUMENT ME!
-   * 
-   * @param index DOCUMENT ME!
-   * 
-   * @return the item at the specified position
-   */
-  public String getItem(int index)
-  {
-    return _menuList.getItem(index);
-  }
+	/**
+	 * The constructor
+	 * 
+	 * @param aX
+	 *            the x coordinate of the dialog window's top left corner
+	 * @param aY
+	 *            the y coordinate of the dialog window's top left corner
+	 * @param aTitle
+	 *            window's title
+	 */
+	public PopUpMenu(final int aX, final int aY, final String aTitle) {
+		x = aX;
+		y = aY;
+	}
 
-  /**
-   * DOCUMENT ME!
-   * 
-   * @return the number of items
-   */
-  public int getItemsCount()
-  {
-    return _menuList.getItemsCount();
-  }
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * @param index
+	 *            DOCUMENT ME!
+	 * 
+	 * @return the item at the specified position
+	 */
+	public String getItem(final int index) {
+		return menuList.getItem(index);
+	}
 
-  /**
-   * Returns the last selected index. Should be invoked after the return of the <code>show</code> to get the result
-   * 
-   * @return last selected index
-   */
-  public int getSelectedIndex()
-  {
-    return _menuList.getTrackedIndex();
-  }
+	/**
+	 * DOCUMENT ME!
+	 * 
+	 * @return the number of items
+	 */
+	public int getItemsCount() {
+		return menuList.getItemsCount();
+	}
 
-  /**
-   * Returns the last selected item. Should be invoked after the return of the <code>show</code> to get the result
-   * 
-   * @return last selected index
-   */
-  public String getSelectedItem()
-  {
-    return _menuList.getTrackedItemStr();
-  }
+	/**
+	 * Returns the last selected index. Should be invoked after the return of
+	 * the <code>show</code> to get the result
+	 * 
+	 * @return last selected index
+	 */
+	public int getSelectedIndex() {
+		return menuList.getTrackedIndex();
+	}
 
-  /**
-   * Adds an item at the specified position
-   * 
-   * @param pos position
-   * @param item item to add
-   */
-  public void add(int pos, String item)
-  {
-    _menuList.add(pos, item);
-  }
+	/**
+	 * Returns the last selected item. Should be invoked after the return of the
+	 * <code>show</code> to get the result
+	 * 
+	 * @return last selected index
+	 */
+	public String getSelectedItem() {
+		return menuList.getTrackedItemStr();
+	}
 
-  /**
-   * Adds an item at the end of the list.
-   * 
-   * @param item DOCUMENT ME!
-   */
-  public void add(String item)
-  {
-    _menuList.add(item);
-  }
+	/**
+	 * Adds an item at the specified position
+	 * 
+	 * @param pos
+	 *            position
+	 * @param item
+	 *            item to add
+	 */
+	public void add(final int pos, final String item) {
+		menuList.add(pos, item);
+	}
 
-  /**
-   * Adds a separator item at the specified position
-   * 
-   * @param index position
-   */
-  public void addSeparator(int index)
-  {
-    _menuList.addSeparator(index);
-  }
+	/**
+	 * Adds an item at the end of the list.
+	 * 
+	 * @param item
+	 *            DOCUMENT ME!
+	 */
+	public void add(final String item) {
+		menuList.add(item);
+	}
 
-  /**
-   * Adds a separator at the end of the list.
-   */
-  public void addSeparator()
-  {
-    _menuList.addSeparator();
-  }
+	/**
+	 * Adds a separator item at the specified position
+	 * 
+	 * @param index
+	 *            position
+	 */
+	public void addSeparator(final int index) {
+		menuList.addSeparator(index);
+	}
 
-  /**
-   * Removes the item at the specified position
-   * 
-   * @param pos position
-   */
-  public void remove(int pos)
-  {
-    _menuList.remove(pos);
-  }
+	/**
+	 * Adds a separator at the end of the list.
+	 */
+	public void addSeparator() {
+		menuList.addSeparator();
+	}
 
-  /**
-   * Removes the first ocuurence of the specified item
-   * 
-   * @param item item to be removed
-   */
-  public void remove(String item)
-  {
-    _menuList.remove(item);
-  }
+	/**
+	 * Removes the item at the specified position
+	 * 
+	 * @param pos
+	 *            position
+	 */
+	public void remove(final int pos) {
+		menuList.remove(pos);
+	}
 
-  /**
-   * Makes the window visible. Blocks, until the window is closed.
-   */
-  public void show()
-  {
-    int width = _menuList.getPreferredSize().getWidth();
-    int height = _menuList.getPreferredSize().getHeight();
+	/**
+	 * Removes the first ocuurence of the specified item
+	 * 
+	 * @param item
+	 *            item to be removed
+	 */
+	public void remove(final String item) {
+		menuList.remove(item);
+	}
 
-    _peer = new Dialog(_x, _y, width, height, false, null);
-    GridLayoutManager manager1 = new GridLayoutManager(1, 1);
-    _peer.getRootPanel().setLayoutManager(manager1);
-    manager1.addWidget(_menuList, 0, 0, 1, 1, ALIGNMENT_CENTER, ALIGNMENT_CENTER);
-    _menuList.addListener(this);
-    _peer.show();
-  }
+	/**
+	 * Makes the window visible. Blocks, until the window is closed.
+	 */
+	public void show() {
+		int width = menuList.getPreferredSize().getWidth();
+		int height = menuList.getPreferredSize().getHeight();
 
-  public void stateChanged(ItemEvent e)
-  {
-    _menuList.removeListener(this);
-    _peer.close();
-  }
-
-  public void select(int aIndex)
-  {
-    _menuList.setTrackedItem(aIndex);
-  }
+		peer = new ModalDialog(x, y, width, height, false, null);
+		GridLayoutManager manager1 = new GridLayoutManager(1, 1);
+		peer.getRootPanel().setLayoutManager(manager1);
+		manager1.addWidget(menuList, 0, 0, 1, 1, ALIGNMENT_CENTER,
+				ALIGNMENT_CENTER);
+		menuList.addListener(this);
+		peer.show();
+	}
+	/**
+	 * Once the state changes, the object removes
+	 * itself as listener to events
+	 * closes the peer. TODO: what is the peer?
+	 * @param e event triggering this method.
+	 */
+	public void stateChanged(final ItemEvent e) {
+		menuList.removeListener(this);
+		peer.close();
+	}
+	/**
+	 * select one of the items specified by aIndex.
+	 * @param aIndex the index pointing to an item.
+	 */
+	public void select(final int aIndex) {
+		menuList.setTrackedItem(aIndex);
+	}
 }

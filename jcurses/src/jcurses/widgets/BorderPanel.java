@@ -1,4 +1,3 @@
-
 package jcurses.widgets;
 
 import jcurses.system.CharColor;
@@ -7,37 +6,56 @@ import jcurses.util.Rectangle;
 
 /**
  * This class implements a panel with a border.
- *
+ * 
  */
 
 public class BorderPanel extends Panel {
 
-	private CharColor _colors = getDefaultBorderColors();
-	private static CharColor __defaultBorderColors = new CharColor(CharColor.WHITE, CharColor.BLACK);
+	/**
+	 * the border colors.
+	 */
+	private CharColor colors = getDefaultBorderColors();
+	/**
+	 * the default border colors.
+	 */
+	private static CharColor defaultBorderColors = new CharColor(
+			CharColor.WHITE, CharColor.BLACK);
 
 	/**
-	 *Constructor for the BorderPanel with default w / h
+	 * Constructor for the BorderPanel with default w / h.
 	 */
 	public BorderPanel() {
 		super();
 	}
 
 	/**
-	 *Constructor for the BorderPanel with width and height provided
-	 *
-	 * @param  width  width
-	 * @param  height height
+	 * Constructor for the BorderPanel with width and height provided.
+	 * 
+	 * @param width
+	 *            width
+	 * @param height
+	 *            height
 	 */
-	public BorderPanel(int width, int height) {
+	public BorderPanel(final int width, final int height) {
 		super(width, height);
 	}
 
+	/**
+	 * Paints self.
+	 * 
+	 * TODO: Is this method meant for override?
+	 */
 	@Override
 	protected void paintSelf() {
 		Toolkit.drawBorder(getRectangle(), getBorderColors());
 		super.paintSelf();
 	}
 
+	/**
+	 * Repaints self.
+	 * 
+	 * TODO: Is this method meant for override?
+	 */
 	@Override
 	protected void repaintSelf() {
 		Toolkit.drawBorder(getRectangle(), getBorderColors());
@@ -45,38 +63,39 @@ public class BorderPanel extends Panel {
 	}
 
 	/**
-	 *  Gets the borderColors attribute of the BorderPanel object
-	 *
-	 * @return    The borderColors value
+	 * Gets the borderColors attribute of the BorderPanel object.
+	 * 
+	 * @return The borderColors value
 	 */
-	public CharColor getBorderColors() {
-		return _colors;
+	public final CharColor getBorderColors() {
+		return colors;
 	}
 
 	/**
-	 *  Sets the borderColors attribute of the BorderPanel object
-	 *
-	 * @param  colors  The new borderColors value
+	 * Sets the borderColors attribute of the BorderPanel object.
+	 * 
+	 * @param someColors
+	 *            The new borderColors value
 	 */
-	public void setBorderColors(CharColor colors) {
-		_colors = colors;
+	public final void setBorderColors(final CharColor someColors) {
+		colors = someColors;
 	}
 
 	/**
-	 *  Gets the defaultBorderColors attribute of the BorderPanel object
-	 *
-	 * @return    The defaultBorderColors value
+	 * Gets the defaultBorderColors attribute of the BorderPanel object.
+	 * 
+	 * @return The defaultBorderColors value
 	 */
-	protected CharColor getDefaultBorderColors() {
-		return __defaultBorderColors;
+	protected final CharColor getDefaultBorderColors() {
+		return defaultBorderColors;
 	}
 
 	/**
-	 *  Gets the clientArea attribute of the BorderPanel object
-	 *
-	 * @return    The clientArea value
+	 * Gets the clientArea attribute of the BorderPanel object.
+	 * 
+	 * @return The clientArea value
 	 */
-	protected Rectangle getClientArea() {
+	protected final Rectangle getClientArea() {
 		Rectangle rect = (Rectangle) getSize().clone();
 		rect.setLocation(1, 1);
 		rect.setWidth(rect.getWidth() - 2);

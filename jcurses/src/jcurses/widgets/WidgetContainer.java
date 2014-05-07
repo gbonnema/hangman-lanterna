@@ -112,7 +112,7 @@ public abstract class WidgetContainer extends Widget
     {
       Widget widget = (Widget)_widgets.elementAt(i);
 
-      if ( widget.getShortCutsList() != null )
+      if ( widget.getShortCutList() != null )
         result.add(widget);
       else if ( widget instanceof WidgetContainer )
         result.addAll(( (WidgetContainer)widget ).getListOfWidgetsWithShortCuts());

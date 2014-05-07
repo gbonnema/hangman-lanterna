@@ -1,4 +1,3 @@
-
 package jcurses.widgets;
 
 import jcurses.system.InputChar;
@@ -6,43 +5,45 @@ import jcurses.system.InputChar;
 import jcurses.util.Rectangle;
 
 /**
- *   A visual list that handles user selection events
+ * A visual list that handles user selection events
  */
 public class MenuList extends List {
-	private final static String SEPARATOR = "\u0000\u0000\u0000\u0000";
-	private final static String SEPARATOR_STRING = "";
-	private String _separatorString = SEPARATOR_STRING;
+	private static final String SEPARATOR = "\u0000\u0000\u0000\u0000";
+	private static final String SEPARATOR_STRING = "";
+	private String separatorString = SEPARATOR_STRING;
 
 	/**
 	 * Sets the text to use by painting separators
-	 *
-	 *
-	 * @param  value  separator string
-	 *
+	 * 
+	 * 
+	 * @param value
+	 *            separator string
+	 * 
 	 */
-	public void setSeparatorString(String value) {
-		_separatorString = value;
+	public void setSeparatorString(final String value) {
+		separatorString = value;
 	}
 
 	/**
 	 * Returns the text used by painting separators
-	 *
-	 *
-	 * @return    separator string
-	 *
+	 * 
+	 * 
+	 * @return separator string
+	 * 
 	 */
 	public String getSeparatorString() {
-		return _separatorString;
+		return separatorString;
 	}
 
 	/**
 	 * Adds a separator at the specified position
-	 *
-	 *
-	 * @param  index  position to add a separator
-	 *
+	 * 
+	 * 
+	 * @param index
+	 *            position to add a separator
+	 * 
 	 */
-	public void addSeparator(int index) {
+	public void addSeparator(final int index) {
 		add(index, SEPARATOR);
 	}
 
@@ -54,12 +55,13 @@ public class MenuList extends List {
 	}
 
 	/**
-	 *  Gets the itemRepresentation attribute of the MenuList object
-	 *
-	 * @param  item  Description of the Parameter
-	 * @return       The itemRepresentation value
+	 * Gets the itemRepresentation attribute of the MenuList object
+	 * 
+	 * @param item
+	 *            Description of the Parameter
+	 * @return The itemRepresentation value
 	 */
-	protected String getItemRepresentation(String item) {
+	protected String getItemRepresentation(final String item) {
 		if (item == SEPARATOR) {
 			return getSeparatorString();
 		}
@@ -68,31 +70,33 @@ public class MenuList extends List {
 	}
 
 	/**
-	 *  Gets the preferredSize attribute of the MenuList object
-	 *
-	 * @return    The preferredSize value
+	 * Gets the preferredSize attribute of the MenuList object
+	 * 
+	 * @return The preferredSize value
 	 */
 	protected Rectangle getPreferredSize() {
 		return new Rectangle(getMaxItemLength() + 2, getItemsCount() + 2);
 	}
 
 	/**
-	 *  Gets the selectable attribute of the MenuList object
-	 *
-	 * @param  index  Description of the Parameter
-	 * @return        The selectable value
+	 * Gets the selectable attribute of the MenuList object
+	 * 
+	 * @param index
+	 *            Description of the Parameter
+	 * @return The selectable value
 	 */
-	protected boolean isSelectable(int index) {
+	protected boolean isSelectable(final int index) {
 		return (!(getItem(index) == SEPARATOR));
 	}
 
 	/**
-	 *  Description of the Method
-	 *
-	 * @param  ch  Description of the Parameter
-	 * @return     Description of the Return Value
+	 * Description of the Method
+	 * 
+	 * @param ch
+	 *            Description of the Parameter
+	 * @return Description of the Return Value
 	 */
-	protected boolean handleInput(InputChar ch) {
+	protected boolean handleInput(final InputChar ch) {
 		if (!ch.equals(getChangeStatusChar())) {
 			return super.handleInput(ch);
 		}
@@ -101,9 +105,9 @@ public class MenuList extends List {
 	}
 
 	/**
-	 *  Gets the maxItemLength attribute of the MenuList object
-	 *
-	 * @return    The maxItemLength value
+	 * Gets the maxItemLength attribute of the MenuList object
+	 * 
+	 * @return The maxItemLength value
 	 */
 	private int getMaxItemLength() {
 		int result = 0;

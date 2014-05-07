@@ -1,4 +1,3 @@
-
 package jcurses.widgets;
 
 import jcurses.system.CharColor;
@@ -7,61 +6,69 @@ import jcurses.util.Rectangle;
 import jcurses.util.TextUtils;
 
 /**
- * This class implements a label widget
+ * This class implements a label widget.
  */
 public class Label extends Widget {
-	private String _label = null;
+	/**
+	 * 
+	 */
+	private String label = null;
 
 	/**
-	 * The constructor
-	 *
-	 *
-	 * @param  aLabel   label's text param colors label's colors
-	 * @param  aColors  Description of the Parameter
+	 * The constructor.
+	 * 
+	 * 
+	 * @param aLabel
+	 *            label's text
+	 * @param aColors
+	 *            colors label's colors
+	 * 
 	 */
-	public Label(String aLabel, CharColor aColors) {
+	public Label(final String aLabel, final CharColor aColors) {
 		this(aLabel);
 		setColors(aColors);
 	}
 
 	/**
-	 *  Gets the text of the Label
-	 *
-	 * @return    The text value
+	 * Gets the text of the Label.
+	 * 
+	 * @return The text value
 	 */
-	public String getText() {
-		return _label;
+	public final String getText() {
+		return label;
 	}
 
 	/**
-	 *  Sets the text  of the Label
-	 *
-	 * @param  aText  The new text value
+	 * Sets the text of the Label.
+	 * 
+	 * @param aText
+	 *            The new text value
 	 */
-	public void setText(String aText) {
-		_label = aText;
-		if (_label == null) {
-			_label = "";
+	public final void setText(final String aText) {
+		label = aText;
+		if (label == null) {
+			label = "";
 		}
 	}
 
 	/**
-	 * The constructor which makes a Lable of a String
-	 *
-	 *
-	 * @param  aLabel  label's text
+	 * The constructor which makes a Label of a String.
+	 * 
+	 * 
+	 * @param aLabel
+	 *            label's text
 	 */
-	public Label(String aLabel) {
+	public Label(final String aLabel) {
 		setText(aLabel);
 	}
 
 	/**
-	 *  Calculates the preferred size of the Label.
-	 *
-	 * @return    The preferred size
+	 * Calculates the preferred size of the Label.
+	 * 
+	 * @return The preferred size
 	 */
-	protected Rectangle getPreferredSize() {
-		String[] mLines = TextUtils.wrapLines(_label, Integer.MAX_VALUE);
+	protected final Rectangle getPreferredSize() {
+		String[] mLines = TextUtils.wrapLines(label, Integer.MAX_VALUE);
 
 		int mWide = 0;
 		for (int mIdx = 0; mIdx < mLines.length; mIdx++) {
@@ -72,10 +79,10 @@ public class Label extends Widget {
 	}
 
 	/**
-	 *  The interface method that draws the label in its rectangle in its colors.
+	 * The interface method that draws the label in its rectangle and in its
+	 * colors.
 	 */
-	protected void doPaint() {
-		Toolkit.printString(_label, getRectangle(), getColors());
+	protected final void doPaint() {
+		Toolkit.printString(label, getRectangle(), getColors());
 	}
 }
-

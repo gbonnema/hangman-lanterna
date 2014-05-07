@@ -1,4 +1,3 @@
-
 package jcurses.widgets;
 
 import java.util.Comparator;
@@ -17,46 +16,51 @@ import jcurses.themes.WindowThemeOverride;
 import jcurses.util.Rectangle;
 
 /**
- * Under jCurses, unlike some GUI libraries, a Window is not a widget, but contains a panel (the root panel), that contains all widgets. A window can, but
- * doesn't must, have a border and a title. All windows under jcurses are managed in a stack, the topmost visible window window on the stack gets all input
- * chars for handling, this is so called focus window. If a window is created, it goes automatically to the top of the stack and lives there until another
- * window is created or explicitly brought to the top.
+ * Under jCurses, unlike some GUI libraries, a Window is not a widget, but
+ * contains a panel (the root panel), that contains all widgets. A window can
+ * optionally have a border and a title. All windows under jcurses are managed
+ * in a stack, the topmost visible window window on the stack gets all input
+ * chars for handling, this is the so called focus window. If a window is
+ * created, it automatically goes to the top of the stack and lives there until
+ * another window is created or explicitly brought to the top.
  */
 public class Window {
-	private static InputChar __defaultClosingChar = new InputChar(InputChar.KEY_ESC);
-	private static InputChar __defaultFocusChangeChar = new InputChar(InputChar.KEY_TAB);
+	private static InputChar __defaultClosingChar = new InputChar(
+			InputChar.KEY_ESC);
+	private static InputChar __defaultFocusChangeChar = new InputChar(
+			InputChar.KEY_TAB);
 	private static InputChar __upChar = new InputChar(InputChar.KEY_UP);
 	private static InputChar __downChar = new InputChar(InputChar.KEY_DOWN);
 	private static InputChar __leftChar = new InputChar(InputChar.KEY_LEFT);
 	private static InputChar __rightChar = new InputChar(InputChar.KEY_RIGHT);
 	private InputChar _closingChar = getDefaultClosingChar();
 	private InputChar _focusChangeChar = getDefaultFocusChangeChar();
-	private Hashtable _shortCutsTable = new Hashtable();
-	private Vector _shortCutsList = new Vector();
+	private Hashtable _shortCutTable = new Hashtable();
+	private Vector _shortCutList = new Vector();
 
 	/**
-	 *  Self-documenting
+	 * Self-documenting
 	 */
 	public final static int DIR_LEFT = 0;
 	/**
-	 *  Self-documenting
+	 * Self-documenting
 	 */
 	public final static int DIR_RIGHT = 1;
 	/**
-	 *  Self-documenting
+	 * Self-documenting
 	 */
 	public final static int DIR_UP = 2;
 	/**
-	 *  Self-documenting
+	 * Self-documenting
 	 */
 	public final static int DIR_DOWN = 3;
 
 	/*
-	 *  can this can be private?
+	 * can this can be private?
 	 */
 	boolean _closed = false;
 	/*
-	 *  can this can be private?
+	 * can this can be private?
 	 */
 	Theme _theme = new WindowThemeOverride();
 
@@ -65,8 +69,9 @@ public class Window {
 	private String _title = null;
 	private Vector _focusableChildren = null;
 
-	//Listener-Zeugs
-	private WindowListenerManager _listenerManager = new WindowListenerManager();
+	// Listener-Zeugs
+	private WindowListenerManager _listenerManager =
+			new WindowListenerManager();
 	private boolean _border = false;
 	private boolean _hasShadow = true;
 	private boolean _visible = false;
@@ -74,15 +79,22 @@ public class Window {
 
 	/**
 	 * The constructor
-	 *
-	 * @param  x       the the top left corner's x coordinate
-	 * @param  y       the top left corner's y coordinate
-	 * @param  width   window's width
-	 * @param  height  window's height
-	 * @param  border  true, if the window has a border, false in other case
-	 * @param  title   DOCUMENT ME!
+	 * 
+	 * @param x
+	 *            the the top left corner's x coordinate
+	 * @param y
+	 *            the top left corner's y coordinate
+	 * @param width
+	 *            window's width
+	 * @param height
+	 *            window's height
+	 * @param border
+	 *            true, if the window has a border, false in other case
+	 * @param title
+	 *            DOCUMENT ME!
 	 */
-	public Window(int x, int y, int width, int height, boolean border, String title) {
+	public Window(int x, int y, int width, int height, boolean border,
+			String title) {
 		_border = border;
 		_title = title;
 		_rect = new Rectangle(width, height);
@@ -101,39 +113,48 @@ public class Window {
 	}
 
 	/**
-	 *  Gets the theme attribute of the Window class
-	 *
-	 * @return    The theme value
+	 * Gets the theme attribute of the Window class
+	 * 
+	 * @return The theme value
 	 */
 	public static Theme getTheme() {
 		return WindowManager.getTheme();
 	}
 
 	/**
-	 *  Sets the theme attribute of the Window class
-	 *
-	 * @param  aTheme  The new theme value
+	 * Sets the theme attribute of the Window class
+	 * 
+	 * @param aTheme
+	 *            The new theme value
 	 */
 	public static void setTheme(Theme aTheme) {
 		WindowManager.setTheme(aTheme);
 	}
 
 	/**
-	 * The constructor. A window created with this constructor is centered on the screen.
-	 *
-	 * @param  width   window's width
-	 * @param  height  window's height
-	 * @param  border  true, if the window has a border, false in other case
-	 * @param  title   title which appears in the title position on the window
+	 * The constructor. A window created with this constructor is centered on
+	 * the screen.
+	 * 
+	 * @param width
+	 *            window's width
+	 * @param height
+	 *            window's height
+	 * @param border
+	 *            true, if the window has a border, false in other case
+	 * @param title
+	 *            title which appears in the title position on the window
 	 */
 	public Window(int width, int height, boolean border, String title) {
-		this((Toolkit.getScreenWidth() - width) / 2, (Toolkit.getScreenHeight() - height) / 2, width, height, border, title);
+		this((Toolkit.getScreenWidth() - width) / 2,
+				(Toolkit.getScreenHeight() - height) / 2, width, height,
+				border, title);
 	}
 
 	/**
-	 *  Sets the borderColors attribute of the Window object
-	 *
-	 * @param  aColors  The new borderColors value
+	 * Sets the borderColors attribute of the Window object
+	 * 
+	 * @param aColors
+	 *            The new borderColors value
 	 */
 	public void setBorderColors(CharColor aColors) {
 		_theme.setColor(Theme.COLOR_WINDOW_BORDER, aColors);
@@ -141,9 +162,9 @@ public class Window {
 	}
 
 	/**
-	 *  Gets the borderColors attribute of the Window object
-	 *
-	 * @return    The borderColors value
+	 * Gets the borderColors attribute of the Window object
+	 * 
+	 * @return The borderColors value
 	 */
 	public CharColor getBorderColors() {
 		return _theme.getColor(Theme.COLOR_WINDOW_BORDER);
@@ -151,8 +172,8 @@ public class Window {
 
 	/**
 	 * Has the window been closed?
-	 *
-	 * @return    true if the window is already closed, false otherwise.
+	 * 
+	 * @return true if the window is already closed, false otherwise.
 	 */
 	public boolean isClosed() {
 		return _closed;
@@ -160,66 +181,74 @@ public class Window {
 
 	/**
 	 * The method defines a new window's closing character. Default is escape.
-	 *
+	 * 
 	 * {@code null} means no closing character
-	 *
-	 * @param  character  new window's closing character - {@code null} means no closing character
+	 * 
+	 * @param character
+	 *            new window's closing character - {@code null} means no closing
+	 *            character
 	 */
 	public void setClosingChar(InputChar character) {
 		_closingChar = character;
 	}
 
 	/**
-	 * The method returns the character which, when encountered in the default input handler
-	 * causes JCurses to close this window.
-	 *
-	 * @return    window's closing character - {@code null} means no closing character
+	 * The method returns the character which, when encountered in the default
+	 * input handler causes JCurses to close this window.
+	 * 
+	 * @return window's closing character - {@code null} means no closing
+	 *         character
 	 */
 	public InputChar getClosingChar() {
 		return _closingChar;
 	}
 
 	/**
-	 *  Gets the defaultBorderColors attribute of the Window object
-	 *
-	 * @return    The defaultBorderColors value
+	 * Gets the defaultBorderColors attribute of the Window object
+	 * 
+	 * @return The defaultBorderColors value
 	 */
 	public CharColor getDefaultBorderColors() {
 		return getTheme().getColor(Theme.COLOR_WINDOW_BORDER);
 	}
 
 	/**
-	 *  Gets the defaultTitleColors attribute of the Window object
-	 *
-	 * @return    The defaultTitleColors value
+	 * Gets the defaultTitleColors attribute of the Window object
+	 * 
+	 * @return The defaultTitleColors value
 	 */
 	public CharColor getDefaultTitleColors() {
 		return getTheme().getColor(Theme.COLOR_WINDOW_TITLE);
 	}
 
 	/**
-	 * The method defined the charater used to navigate (change the focus) between widgets within the window. Default is 'tab'
-	 *
-	 * @param  character  new window's focus changing charater
+	 * The method defined the charater used to navigate (change the focus)
+	 * between widgets within the window. Default is 'tab'
+	 * 
+	 * @param character
+	 *            new window's focus changing charater
 	 */
 	public void setFocusChangeChar(InputChar character) {
 		_focusChangeChar = character;
 	}
 
 	/**
-	 * The method returns the character used to navigate (change the focus) between widgets within the window. Default is 'tab'
-	 *
-	 * @return    window's focus changing charater
+	 * The method returns the character used to navigate (change the focus)
+	 * between widgets within the window. Default is 'tab'
+	 * 
+	 * @return window's focus changing charater
 	 */
 	public InputChar getFocusChangeChar() {
 		return _focusChangeChar;
 	}
 
 	/**
-	 * Sets the root panel of the window. This is the top most widget container in the window's widget hierarchy. It occupies the entire window out of the border
-	 * (if exists ).
-	 *
-	 * @param  root  a Panel suitable to be a root panel.
+	 * Sets the root panel of the window. This is the top most widget container
+	 * in the window's widget hierarchy. It occupies the entire window out of
+	 * the border (if exists ).
+	 * 
+	 * @param root
+	 *            a Panel suitable to be a root panel.
 	 */
 	public void setRootPanel(Panel root) {
 		_root = root;
@@ -228,27 +257,29 @@ public class Window {
 	}
 
 	/**
-	 *  Window manager closes all windows.
+	 * Window manager closes all windows.
 	 */
 	public static void closeAllWindows() {
 		WindowManager.closeAll();
 	}
 
 	/**
-	 * Returns the  root panel of the window. This is the top most widget container in the window's widget hierarchy. It occupies the entire window out of the border
-	 * (if exists ).
-	 *
-	 * @return    the root panel of the window
+	 * Returns the root panel of the window. This is the top most widget
+	 * container in the window's widget hierarchy. It occupies the entire window
+	 * out of the border (if exists ).
+	 * 
+	 * @return the root panel of the window
 	 */
 	public Panel getRootPanel() {
-		//Ein kommentar
+		// Ein kommentar
 		return _root;
 	}
 
 	/**
 	 * The method defines whether the window is to paint with a shadow.
-	 *
-	 * @param  value  true if a shadow is to paint, false otherwise
+	 * 
+	 * @param value
+	 *            true if a shadow is to paint, false otherwise
 	 */
 	public void setShadow(boolean value) {
 		_hasShadow = value;
@@ -256,18 +287,19 @@ public class Window {
 	}
 
 	/**
-	 *  Indicates whether the window is to paint with a shadow.
-	 *
-	 * @return    true if a shadow is to paint, false otherwise
+	 * Indicates whether the window is to paint with a shadow.
+	 * 
+	 * @return true if a shadow is to paint, false otherwise
 	 */
 	public boolean hasShadow() {
 		return _hasShadow;
 	}
 
 	/**
-	 *  Sets the titleColors attribute of the Window object
-	 *
-	 * @param  aColors  The new titleColors value
+	 * Sets the titleColors attribute of the Window object
+	 * 
+	 * @param aColors
+	 *            The new titleColors value
 	 */
 	public void setTitleColors(CharColor aColors) {
 		_theme.setColor(Theme.COLOR_WINDOW_TITLE, aColors);
@@ -275,9 +307,9 @@ public class Window {
 	}
 
 	/**
-	 *  Gets the titleColors attribute of the Window object
-	 *
-	 * @return    The titleColors value
+	 * Gets the titleColors attribute of the Window object
+	 * 
+	 * @return The titleColors value
 	 */
 	public CharColor getTitleColors() {
 		return _theme.getColor(Theme.COLOR_WINDOW_TITLE);
@@ -285,8 +317,9 @@ public class Window {
 
 	/**
 	 * The method changes the window's visibility status
-	 *
-	 * @param  aVisible  true, if the window becomes visible, false in other case
+	 * 
+	 * @param aVisible
+	 *            true, if the window becomes visible, false in other case
 	 */
 	public void setVisible(boolean aVisible) {
 		if (aVisible != isVisible()) {
@@ -300,8 +333,8 @@ public class Window {
 
 	/**
 	 * The method returns the window's visibility status
-	 *
-	 * @return    true, if the window becomes visible, false in other case
+	 * 
+	 * @return true, if the window becomes visible, false in other case
 	 */
 	public boolean isVisible() {
 		return _visible;
@@ -309,8 +342,9 @@ public class Window {
 
 	/**
 	 * The method adds a listener to the window
-	 *
-	 * @param  listener  the listener to add
+	 * 
+	 * @param listener
+	 *            the listener to add
 	 */
 	public void addListener(WindowListener listener) {
 		_listenerManager.addListener(listener);
@@ -342,8 +376,10 @@ public class Window {
 	}
 
 	/**
-	 * The method computes new window's layout. The method must already be called, if anything on the window building is changed, for example, an widget is
-	 * removed or isn't more focusable ( because not visible or other ).
+	 * The method computes new window's layout. The method must already be
+	 * called, if anything on the window building is changed, for example, an
+	 * widget is removed or isn't more focusable ( because not visible or other
+	 * ).
 	 */
 	public void pack() {
 		cutIfNeeded();
@@ -355,8 +391,9 @@ public class Window {
 
 	/**
 	 * The method remove a listener from the window
-	 *
-	 * @param  listener  the listener to remove
+	 * 
+	 * @param listener
+	 *            the listener to remove
 	 */
 	public void removeListener(WindowListener listener) {
 		_listenerManager.removeListener(listener);
@@ -375,15 +412,18 @@ public class Window {
 	}
 
 	/**
-	 * The method tries to close the window, after the user has typed 'escape' or an other closing character. The procedure is as following: If the window has
-	 * listeners, than an event is sent to the listeners. The window can be closed bei listeners. Didn't listeners close the window, in leaves open. Has the
-	 * window no listeners, than the method closes it.
-	 *
-	 * @return    true if close was successful
+	 * The method tries to close the window, after the user has typed 'escape'
+	 * or an other closing character. The procedure is as following: If the
+	 * window has listeners, than an event is sent to the listeners. The window
+	 * can be closed bei listeners. Didn't listeners close the window, in leaves
+	 * open. Has the window no listeners, than the method closes it.
+	 * 
+	 * @return true if close was successful
 	 */
 	public boolean tryToClose() {
 		if (_listenerManager.countListeners() > 0) {
-			_listenerManager.handleEvent(new WindowEvent(this, WindowEvent.CLOSING));
+			_listenerManager.handleEvent(new WindowEvent(this,
+					WindowEvent.CLOSING));
 
 			return isClosed();
 		}
@@ -395,8 +435,8 @@ public class Window {
 
 	/**
 	 * Returns the rectangle occupied by the window.
-	 *
-	 * @return    the rectangle occupied by the window
+	 * 
+	 * @return the rectangle occupied by the window
 	 */
 	protected Rectangle getRectangle() {
 		return _rect;
@@ -404,12 +444,13 @@ public class Window {
 
 	/**
 	 * Accounts for shadow is any
-	 *
-	 * @return    the rectangle occupied by the window
+	 * 
+	 * @return the rectangle occupied by the window
 	 */
 	protected Rectangle getClipRectangle() {
 		if (hasShadow()) {
-			return new Rectangle(_rect.getX(), _rect.getY(), _rect.getWidth() + 1, _rect.getHeight() + 1);
+			return new Rectangle(_rect.getX(), _rect.getY(),
+					_rect.getWidth() + 1, _rect.getHeight() + 1);
 		}
 
 		return _rect;
@@ -419,19 +460,22 @@ public class Window {
 	 * The method is called, if the window gets focus.
 	 */
 	protected void activate() {
-		_listenerManager.handleEvent(new WindowEvent(this, WindowEvent.ACTIVATED));
+		_listenerManager.handleEvent(new WindowEvent(this,
+				WindowEvent.ACTIVATED));
 	}
 
 	/**
-	 *  Changes the focus between widgets and propagates the change notification.
-	 *  Internal only, should not be called by application code.
-	 *
-	 * @param  aWidgetIndex  Index of widget to receive focus.
+	 * Changes the focus between widgets and propagates the change notification.
+	 * Internal only, should not be called by application code.
+	 * 
+	 * @param aWidgetIndex
+	 *            Index of widget to receive focus.
 	 */
 	protected void changeFocus(int aWidgetIndex) {
 		if (aWidgetIndex != _currentIndex) {
 			if (isFocusableIndex(_currentIndex)) {
-				((Widget) _focusableChildren.get(_currentIndex)).setFocus(false);
+				((Widget) _focusableChildren.get(_currentIndex))
+						.setFocus(false);
 			}
 
 			_currentIndex = aWidgetIndex;
@@ -443,23 +487,26 @@ public class Window {
 	}
 
 	/**
-	 *  Changes the focus between widgets and propagates the change notification.
-	 *  Internal only, should not be called by application code. 
-	 *
-	 * @param  aWidget  the Widge itself to which the focus is to be changed.
+	 * Changes the focus between widgets and propagates the change notification.
+	 * Internal only, should not be called by application code.
+	 * 
+	 * @param aWidget
+	 *            the Widge itself to which the focus is to be changed.
 	 */
 	protected void changeFocus(Widget aWidget) {
 		changeFocus(_focusableChildren.indexOf(aWidget));
 	}
 
 	/**
-	 *  Changes the focus between widgets and propagates the change notification
-	 *  merely by incrementing the index, wrapping to zero (0) if necessary.
-	 *  Internal only, should not be called by application code. 
+	 * Changes the focus between widgets and propagates the change notification
+	 * merely by incrementing the index, wrapping to zero (0) if necessary.
+	 * Internal only, should not be called by application code.
 	 */
 	protected void changeFocus() {
-		//changeFocus(Math.min(Math.max(0, _currentIndex + 1), _focusableChildren.size() - 1));
-		if (_currentIndex >= _focusableChildren.size() - 1 || _currentIndex < -1) {
+		// changeFocus(Math.min(Math.max(0, _currentIndex + 1),
+		// _focusableChildren.size() - 1));
+		if (_currentIndex >= _focusableChildren.size() - 1
+				|| _currentIndex < -1) {
 			changeFocus(0);
 		} else {
 			changeFocus(_currentIndex + 1);
@@ -467,11 +514,12 @@ public class Window {
 	}
 
 	/**
-	 *  Changes the focus between widgets and propagates the change notification
-	 *  based on a sense of direction in the relation of all widgets.
-	 *  Internal only, should not be called by application code. 
-	 *
-	 * @param  aDirection  One of the directions DIR_LEFT DIR_RIGHT DIR_UP DIR_DOWN 
+	 * Changes the focus between widgets and propagates the change notification
+	 * based on a sense of direction in the relation of all widgets. Internal
+	 * only, should not be called by application code.
+	 * 
+	 * @param aDirection
+	 *            One of the directions DIR_LEFT DIR_RIGHT DIR_UP DIR_DOWN
 	 */
 	protected void moveFocus(int aDirection) {
 		if (_focusableChildren.isEmpty()) {
@@ -486,7 +534,7 @@ public class Window {
 
 		Widget mResult = mCurrent;
 
-		for (Iterator mIt = _focusableChildren.iterator(); mIt.hasNext(); ) {
+		for (Iterator mIt = _focusableChildren.iterator(); mIt.hasNext();) {
 			Widget mCandidate = (Widget) mIt.next();
 
 			if (mCandidate == mCurrent) {
@@ -497,46 +545,54 @@ public class Window {
 			Rectangle mCandRect = mCandidate.getRectangle();
 			Rectangle mResRect = mResult.getRectangle();
 
-			int vDelta = mCurRect.verticalDistanceFrom(mCandRect) - mCurRect.verticalDistanceFrom(mResRect);
-			int hDelta = mCurRect.horizontalDistanceFrom(mCandRect) - mCurRect.horizontalDistanceFrom(mResRect);
+			int vDelta =
+					mCurRect.verticalDistanceFrom(mCandRect)
+							- mCurRect.verticalDistanceFrom(mResRect);
+			int hDelta =
+					mCurRect.horizontalDistanceFrom(mCandRect)
+							- mCurRect.horizontalDistanceFrom(mResRect);
 
 			switch (aDirection) {
-							case DIR_LEFT:
+			case DIR_LEFT:
 
-								if (mCandRect.isLeftOf(mCurRect)) {
-									if ((mResult == mCurrent) || (vDelta < 0) || ((vDelta == 0) && (hDelta < 0))) {
-										mResult = mCandidate;
-									}
-								}
+				if (mCandRect.isLeftOf(mCurRect)) {
+					if ((mResult == mCurrent) || (vDelta < 0)
+							|| ((vDelta == 0) && (hDelta < 0))) {
+						mResult = mCandidate;
+					}
+				}
 
-								break;
-							case DIR_RIGHT:
+				break;
+			case DIR_RIGHT:
 
-								if (mCandRect.isRightOf(mCurRect)) {
-									if ((mResult == mCurrent) || (vDelta < 0) || ((vDelta == 0) && (hDelta < 0))) {
-										mResult = mCandidate;
-									}
-								}
+				if (mCandRect.isRightOf(mCurRect)) {
+					if ((mResult == mCurrent) || (vDelta < 0)
+							|| ((vDelta == 0) && (hDelta < 0))) {
+						mResult = mCandidate;
+					}
+				}
 
-								break;
-							case DIR_UP:
+				break;
+			case DIR_UP:
 
-								if (mCandRect.isAbove(mCurRect)) {
-									if ((mResult == mCurrent) || (hDelta < 0) || ((hDelta == 0) && (vDelta < 0))) {
-										mResult = mCandidate;
-									}
-								}
+				if (mCandRect.isAbove(mCurRect)) {
+					if ((mResult == mCurrent) || (hDelta < 0)
+							|| ((hDelta == 0) && (vDelta < 0))) {
+						mResult = mCandidate;
+					}
+				}
 
-								break;
-							case DIR_DOWN:
+				break;
+			case DIR_DOWN:
 
-								if (mCandRect.isBelow(mCurRect)) {
-									if ((mResult == mCurrent) || (hDelta < 0) || ((hDelta == 0) && (vDelta < 0))) {
-										mResult = mCandidate;
-									}
-								}
+				if (mCandRect.isBelow(mCurRect)) {
+					if ((mResult == mCurrent) || (hDelta < 0)
+							|| ((hDelta == 0) && (vDelta < 0))) {
+						mResult = mCandidate;
+					}
+				}
 
-								break;
+				break;
 			}
 		}
 
@@ -555,18 +611,21 @@ public class Window {
 	 * The method is called, if the window loses focus.
 	 */
 	protected void deactivate() {
-		_listenerManager.handleEvent(new WindowEvent(this, WindowEvent.DEACTIVATED));
+		_listenerManager.handleEvent(new WindowEvent(this,
+				WindowEvent.DEACTIVATED));
 	}
 
 	/**
-	 * The method is called by the library to handle an input character, if the window has the focus.
-	 *
-	 * @param  inp the object instance representing the input char
+	 * The method is called by the library to handle an input character, if the
+	 * window has the focus.
+	 * 
+	 * @param inp
+	 *            the object instance representing the input char
 	 */
 	protected void handleInput(InputChar inp) {
 		Widget cur = getCurrentWidget();
 
-		//System.err.println("Window.handleInput( 0x"+Integer.toHexString(inp.getCode())+" )");
+		// System.err.println("Window.handleInput( 0x"+Integer.toHexString(inp.getCode())+" )");
 
 		if ((cur != null) && cur.handleInput(inp)) {
 			return;
@@ -590,13 +649,15 @@ public class Window {
 	}
 
 	/**
-	 * The method is called by <code>handleInput</code>, if no widget has handled the input. Derived classes can override the method to define additional
-	 * shortcuts.
-	 *
-	 * @param  inp the object instance representing the input char
+	 * The method is called by <code>handleInput</code>, if no widget has
+	 * handled the input. Derived classes can override the method to define
+	 * additional shortcuts.
+	 * 
+	 * @param inp
+	 *            the object instance representing the input char
 	 */
 	protected void onChar(InputChar inp) {
-		//default nothing
+		// default nothing
 	}
 
 	/**
@@ -608,7 +669,8 @@ public class Window {
 	}
 
 	/**
-	 * Currently the method makes the same as repaint, in next versions the method will repaint only the part of the window, that was hided.
+	 * Currently the method makes the same as repaint, in next versions the
+	 * method will repaint only the part of the window, that was hided.
 	 */
 	protected void repaint() {
 		if (isVisible()) {
@@ -618,10 +680,12 @@ public class Window {
 	}
 
 	/**
-	 *  Resize to specified size 
-	 *
-	 * @param  width   d'oh
-	 * @param  height  d'oh
+	 * Resize to specified size
+	 * 
+	 * @param width
+	 *            d'oh
+	 * @param height
+	 *            d'oh
 	 */
 	protected void resize(int width, int height) {
 		_rect.setWidth(width);
@@ -629,9 +693,9 @@ public class Window {
 	}
 
 	/**
-	 *  Gets the currentWidget attribute of the Window object
-	 *
-	 * @return    The currentWidget value
+	 * Gets the currentWidget attribute of the Window object
+	 * 
+	 * @return The currentWidget value
 	 */
 	private Widget getCurrentWidget() {
 		if (isFocusableIndex(_currentIndex)) {
@@ -642,28 +706,29 @@ public class Window {
 	}
 
 	/**
-	 *  Gets the defaultClosingChar attribute of the Window object
-	 *
-	 * @return    The defaultClosingChar value
+	 * Gets the defaultClosingChar attribute of the Window object
+	 * 
+	 * @return The defaultClosingChar value
 	 */
 	private InputChar getDefaultClosingChar() {
 		return __defaultClosingChar;
 	}
 
 	/**
-	 *  Gets the defaultFocusChangeChar attribute of the Window object
-	 *
-	 * @return    The defaultFocusChangeChar value
+	 * Gets the defaultFocusChangeChar attribute of the Window object
+	 * 
+	 * @return The defaultFocusChangeChar value
 	 */
 	private InputChar getDefaultFocusChangeChar() {
 		return __defaultFocusChangeChar;
 	}
 
 	/**
-	 *  Gets the focusableIndex attribute of the Window object
-	 *
-	 * @param  aIdx  Description of the Parameter
-	 * @return       The focusableIndex value
+	 * Gets the focusableIndex attribute of the Window object
+	 * 
+	 * @param aIdx
+	 *            Description of the Parameter
+	 * @return The focusableIndex value
 	 */
 	private boolean isFocusableIndex(int aIdx) {
 		return (aIdx >= 0) && (aIdx < _focusableChildren.size());
@@ -684,27 +749,29 @@ public class Window {
 	 * 2. Zum n?chsten Widget springen. <br>
 	 * 3. Shortcut bearbeiten. <br>
 	 * 3. Eingabe vom aktuell Fokus habenden Kind bearbeiten lassen.
-	 *
-	 * @param  inp  object instance representing the input char
-	 * @return      true if this char is to be handled as a shortcut
+	 * 
+	 * @param inp
+	 *            object instance representing the input char
+	 * @return true if this char is to be handled as a shortcut
 	 */
 	private boolean isShortCut(InputChar inp) {
-		return (_shortCutsList.indexOf(inp) != -1);
+		return (_shortCutList.indexOf(inp) != -1);
 	}
 
 	/**
-	 *  Finds a widget from its associated shortcut char
-	 *
-	 * @param  inp  object instance representing the input char.
-	 * @return      The widget indexed in the shortcuts by the input char
+	 * Finds a widget from its associated shortcut char
+	 * 
+	 * @param inp
+	 *            object instance representing the input char.
+	 * @return The widget indexed in the shortcuts by the input char
 	 */
 	private Widget getWidgetByShortCut(InputChar inp) {
-		return (Widget) _shortCutsTable.get(inp);
+		return (Widget) _shortCutTable.get(inp);
 	}
 
 	/**
-	 *  Create (if necessary) a root panel and do some rectangle math on
-	 * the root panel so it fits
+	 * Create (if necessary) a root panel and do some rectangle math on the root
+	 * panel so it fits
 	 */
 	private void configureRootPanel() {
 		if (_root == null) {
@@ -729,15 +796,17 @@ public class Window {
 	}
 
 	/**
-	 *  Clip a rectangle
+	 * Clip a rectangle
 	 */
 	private void cutIfNeeded() {
-		int maxWidth = Toolkit.getScreenWidth() - _rect.getX() - (_hasShadow ? 1 : 0);
+		int maxWidth =
+				Toolkit.getScreenWidth() - _rect.getX() - (_hasShadow ? 1 : 0);
 		if (_rect.getWidth() > maxWidth) {
 			_rect.setWidth(maxWidth);
 		}
 
-		int maxHeight = Toolkit.getScreenHeight() - _rect.getY() - (_hasShadow ? 1 : 0);
+		int maxHeight =
+				Toolkit.getScreenHeight() - _rect.getY() - (_hasShadow ? 1 : 0);
 		if (_rect.getHeight() > maxHeight) {
 			_rect.setHeight(maxHeight);
 		}
@@ -755,7 +824,8 @@ public class Window {
 	}
 
 	/**
-	 *  Load and show in order (i.e., changing focus) each of the window's focusable children.
+	 * Load and show in order (i.e., changing focus) each of the window's
+	 * focusable children.
 	 */
 	private void loadFocusableChilds() {
 		_focusableChildren = _root.getListOfFocusables();
@@ -765,37 +835,40 @@ public class Window {
 	}
 
 	/**
-	 *  Load the shortcut table
+	 * Load the shortcut table
 	 */
 	private void loadShortcuts() {
-		_shortCutsList.clear();
-		_shortCutsTable.clear();
+		_shortCutList.clear();
+		_shortCutTable.clear();
 
 		Vector list = _root.getListOfWidgetsWithShortCuts();
 
 		for (int i = 0; i < list.size(); i++) {
 			Widget widget = (Widget) list.elementAt(i);
-			Vector shortCuts = widget.getShortCutsList();
-			_shortCutsList.addAll(shortCuts);
+			Vector shortCuts = widget.getShortCutList();
+			_shortCutList.addAll(shortCuts);
 
 			for (int j = 0; j < shortCuts.size(); j++) {
-				_shortCutsTable.put(shortCuts.elementAt(j), widget);
+				_shortCutTable.put(shortCuts.elementAt(j), widget);
 			}
 		}
 	}
 
 	/**
-	 *  Paint the title
+	 * Paint the title
 	 */
 	private void paintTitle() {
 		if (_title != null) {
-			Toolkit.printString(_title, _rect.getX() + ((_rect.getWidth() - _title.length()) / 2), _rect.getY(), getTitleColors());
+			Toolkit.printString(_title, _rect.getX()
+					+ ((_rect.getWidth() - _title.length()) / 2), _rect.getY(),
+					getTitleColors());
 		}
 	}
 
 	/**
 	 * Get the Window title
-	 * @return    Returns the title.
+	 * 
+	 * @return Returns the title.
 	 */
 	public String getTitle() {
 		return _title;
@@ -803,7 +876,9 @@ public class Window {
 
 	/**
 	 * Set the Window title
-	 * @param  aTitle  The title to set.
+	 * 
+	 * @param aTitle
+	 *            The title to set.
 	 */
 	public void setTitle(String aTitle) {
 		_title = aTitle;
@@ -812,17 +887,19 @@ public class Window {
 }
 
 /**
- *  A class of utility comparators for Widget positions in Windows.
- *
+ * A class of utility comparators for Widget positions in Windows.
+ * 
  */
 class WindowWidgetComparator implements Comparator {
 
 	/**
-	 *  Description of the Method
-	 *
-	 * @param  obj1  Description of the Parameter
-	 * @param  obj2  Description of the Parameter
-	 * @return       Description of the Return Value
+	 * Description of the Method
+	 * 
+	 * @param obj1
+	 *            Description of the Parameter
+	 * @param obj2
+	 *            Description of the Parameter
+	 * @return Description of the Return Value
 	 */
 	public int compare(Object obj1, Object obj2) {
 		if (obj1 instanceof Widget && obj2 instanceof Widget) {
@@ -848,56 +925,67 @@ class WindowWidgetComparator implements Comparator {
 	}
 
 	/**
-	 *  Tests if one widget is above another
-	 *
-	 * @param  aWidget     Widget A
-	 * @param  aWidgetRef  Widget B
-	 * @return             true IFF A .ABOVE. B
+	 * Tests if one widget is above another
+	 * 
+	 * @param aWidget
+	 *            Widget A
+	 * @param aWidgetRef
+	 *            Widget B
+	 * @return true IFF A .ABOVE. B
 	 */
 	static boolean isAbove(Widget aWidget, Widget aWidgetRef) {
 		return aWidget.getRectangle().isAbove(aWidgetRef.getRectangle());
 	}
 
 	/**
-	 *  Tests if one widget is above another
-	 *
-	 * @param  aWidget     Widget A
-	 * @param  aWidgetRef  Widget B
-	 * @return             true IFF A .BELOW. B
+	 * Tests if one widget is above another
+	 * 
+	 * @param aWidget
+	 *            Widget A
+	 * @param aWidgetRef
+	 *            Widget B
+	 * @return true IFF A .BELOW. B
 	 */
 	static boolean isBelow(Widget aWidget, Widget aWidgetRef) {
 		return aWidget.getRectangle().isBelow(aWidgetRef.getRectangle());
 	}
 
 	/**
-	 *  Gets the distance between two widgets
-	 *
-	 * @param  aWidget     Widget A
-	 * @param  aWidgetRef  Widget B
-	 * @return             The distance between A and B
-	 
+	 * Gets the distance between two widgets
+	 * 
+	 * @param aWidget
+	 *            Widget A
+	 * @param aWidgetRef
+	 *            Widget B
+	 * @return The distance between A and B
 	 */
 	static int getDistance(Widget aWidget, Widget aWidgetRef) {
-		return aWidget.getRectangle().distanceSquaredFrom(aWidgetRef.getRectangle());
+		return aWidget.getRectangle().distanceSquaredFrom(
+				aWidgetRef.getRectangle());
 	}
 
 	/**
-	 *  Gets the horizontal distance between two widgets.
-	 *
-	 * @param  aWidget     Widget A
-	 * @param  aWidgetRef  Widget B
-	 * @return             The horizontal distance between A and B
+	 * Gets the horizontal distance between two widgets.
+	 * 
+	 * @param aWidget
+	 *            Widget A
+	 * @param aWidgetRef
+	 *            Widget B
+	 * @return The horizontal distance between A and B
 	 */
 	static int getHorizontalDistance(Widget aWidget, Widget aWidgetRef) {
-		return aWidget.getRectangle().horizontalDistanceFrom(aWidgetRef.getRectangle());
+		return aWidget.getRectangle().horizontalDistanceFrom(
+				aWidgetRef.getRectangle());
 	}
 
 	/**
 	 * True if Widget A is left of Widget B
-	 *
-	 * @param  aWidget     Widget A
-	 * @param  aWidgetRef  Widget B
-	 * @return             True if Widget A is left of Widget B
+	 * 
+	 * @param aWidget
+	 *            Widget A
+	 * @param aWidgetRef
+	 *            Widget B
+	 * @return True if Widget A is left of Widget B
 	 */
 	static boolean isLeft(Widget aWidget, Widget aWidgetRef) {
 		return aWidget.getRectangle().isLeftOf(aWidgetRef.getRectangle());
@@ -905,23 +993,28 @@ class WindowWidgetComparator implements Comparator {
 
 	/**
 	 * True if Widget A is right of Widget B
-	 *
-	 * @param  aWidget     Widget A
-	 * @param  aWidgetRef  Widget B
-	 * @return             True if Widget A is right of Widget B
+	 * 
+	 * @param aWidget
+	 *            Widget A
+	 * @param aWidgetRef
+	 *            Widget B
+	 * @return True if Widget A is right of Widget B
 	 */
 	static boolean isRight(Widget aWidget, Widget aWidgetRef) {
 		return aWidget.getRectangle().isRightOf(aWidgetRef.getRectangle());
 	}
 
 	/**
-	 *  Gets the vertical distance between two widgets.
-	 *
-	 * @param  aWidget     Widget A
-	 * @param  aWidgetRef  Widget B
-	 * @return             The vertical distance between A and B
+	 * Gets the vertical distance between two widgets.
+	 * 
+	 * @param aWidget
+	 *            Widget A
+	 * @param aWidgetRef
+	 *            Widget B
+	 * @return The vertical distance between A and B
 	 */
 	static int getVerticalDistance(Widget aWidget, Widget aWidgetRef) {
-		return aWidget.getRectangle().verticalDistanceFrom(aWidgetRef.getRectangle());
+		return aWidget.getRectangle().verticalDistanceFrom(
+				aWidgetRef.getRectangle());
 	}
 }

@@ -1,4 +1,3 @@
-
 package jcurses.widgets;
 
 import jcurses.event.ActionEvent;
@@ -15,425 +14,616 @@ import java.io.File;
 import java.io.FileFilter;
 
 /**
- * This class implements a file select dialog
+ * This class implements a file select dialog.
  */
-public class FileDialog extends Dialog implements WidgetsConstants, ItemListener, ActionListener
-{
-  private static InputChar __returnChar   = new InputChar('\n');
-  Button                   _cancelButton  = null;
-  Button                   _okButton      = null;
-  JCursesFileFilterFactory _filterFactory = new DefaultFileFilterFactory();
-  Label                    _fileLabel     = null;
-  Label                    _filterLabel   = null;
-  List                     _directories   = null;
-  List                     _files         = null;
-  String                   _ioErrorText   = "Input/Output Error is occured!";
-  String                   _ioErrorTitle  = "I/O Error";
-  TextField                _fileField     = null;
-  TextField                _filterField   = null;
-  private String           _directory     = null;
-  private String           _file          = null;
-  private String           _filterString  = null;
-  private String           _result        = null;
-  private boolean          _inRoots       = false;
+public class FileDialog extends ModalDialog implements WidgetsConstants,
+		ItemListener, ActionListener {
+	/**
+	 * The reciproke of half a screen width.
+	 */
+	private static final double REL_WIDTH = 0.5;
+	/**
+	 * The reciproke of half a screen height.
+	 */
+	private static final double REL_HEIGHT = 0.5;
+	/**
+	 * The relative portion of margin left of the dialog.
+	 */
+	private static final double REL_LEFT_MARGIN = 0.25;
+	/**
+	 * The relative portion of margin above the dialog.
+	 */
+	private static final double REL_TOP_MARGIN = 0.25;
+	/**
+	 * The screen width.
+	 */
+	private static final int SCR_WIDTH = Toolkit.getScreenWidth();
+	/**
+	 * The screen height.
+	 */
+	private static final int SCR_HEIGHT = Toolkit.getScreenHeight();
+	/**
+	 * The top left x coordinate.
+	 */
+	private static final int TOP_LEFT_X = (int) (SCR_WIDTH * REL_LEFT_MARGIN);
+	/**
+	 * The top left y coordinate.
+	 */
+	private static final int TOP_LEFT_Y = (int) (SCR_WIDTH * REL_TOP_MARGIN);
+	/**
+	 * The width of the dialog.
+	 */
+	private static final int WIDTH = (int) (SCR_WIDTH * REL_WIDTH);
+	/**
+	 * the height of the dialog.
+	 */
+	private static final int HEIGHT = (int) (SCR_HEIGHT * REL_HEIGHT);
+	/**
+	 * 
+	 */
+	private static InputChar returnChar = new InputChar('\n');
+	/**
+	 * 
+	 */
+	private Button cancelButton = null;
+	/**
+	 * 
+	 */
+	private Button okButton = null;
+	/**
+	 * 
+	 */
+	private JCursesFileFilterFactory filterFactory =
+			new DefaultFileFilterFactory();
+	/**
+	 * 
+	 */
+	private Label fileLabel = null;
+	/**
+	 * 
+	 */
+	private Label filterLabel = null;
+	/**
+	 * 
+	 */
+	private List directoryList = null;
+	/**
+	 * 
+	 */
+	private List fileList = null;
+	/**
+	 * 
+	 */
+	private String ioErrorText = "Input/Output Error occurred!";
+	/**
+	 * 
+	 */
+	private String ioErrorTitle = "I/O Error";
+	/**
+	 * 
+	 */
+	private TextField fileTextField = null;
+	/**
+	 * 
+	 */
+	private TextField filterTextField = null;
+	/**
+	 * 
+	 */
+	private String directory = null;
+	/**
+	 * 
+	 */
+	private String file = null;
+	/**
+	 * 
+	 */
+	private String filterString = null;
+	/**
+	 * The resulting choice of file or directory.
+	 */
+	private String fileChoice = null;
+	/**
+	 * 
+	 */
+	private boolean inRoots = false;
 
-  /**
-   * A constructor accepting X and Y coordinates, height, width, and a title string.
-   * 
-   * @param x the x coordinate of the dialog window's top left corner
-   * @param y the y coordinate of the dialog window's top left corner
-   * @param title dialog's title
-   */
-  public FileDialog(int x, int y, int width, int height, String title)
-  {
-    super(x, y, width, height, true, title);
+	/**
+	 * A constructor accepting X and Y coordinates, height, width, and a title
+	 * string.
+	 * 
+	 * @param x
+	 *            the x coordinate of the dialog window's top left corner
+	 * @param y
+	 *            the y coordinate of the dialog window's top left corner
+	 * @param width
+	 *            .
+	 * @param height
+	 *            .
+	 * @param title
+	 *            dialog's title
+	 */
+	public FileDialog(final int x, final int y, final int width,
+			final int height, final String title) {
+		super(x, y, width, height, true, title);
 
-    _directories = new List();
-    _directories.setSelectable(false);
-    _directories.setTitle("Directories");
-    _directories.addListener(this);
-    _files = new List();
-    _files.setSelectable(false);
-    _files.setTitle("Files");
-    _files.addListener(this);
-    _fileLabel = new Label("File: ");
-    _filterLabel = new Label("Filter: ");
-    _fileField = new TextField();
-    _fileField.setText(getCurrentFileContent());
-    _filterField = new FilterTextField(this);
-    _okButton = new Button("OK");
-    _okButton.addListener(this);
-    _cancelButton = new Button("Cancel");
-    _cancelButton.addListener(this);
+		directoryList = new List();
+		directoryList.setSelectable(false);
+		directoryList.setTitle("Directories");
+		directoryList.addListener(this);
+		fileList = new List();
+		fileList.setSelectable(false);
+		fileList.setTitle("Files");
+		fileList.addListener(this);
+		fileLabel = new Label("File: ");
+		filterLabel = new Label("Filter: ");
+		fileTextField = new TextField();
+		fileTextField.setText(getCurrentFileContent());
+		filterTextField = new FilterTextField(this);
+		okButton = new Button("OK");
+		okButton.addListener(this);
+		cancelButton = new Button("Cancel");
+		cancelButton.addListener(this);
 
-    Panel topPanel = new Panel();
-    GridLayoutManager topManager = new GridLayoutManager(2, 1);
-    topPanel.setLayoutManager(topManager);
-    topManager.addWidget(_directories, 0, 0, 1, 1, ALIGNMENT_CENTER, ALIGNMENT_CENTER);
-    topManager.addWidget(_files, 1, 0, 1, 1, ALIGNMENT_CENTER, ALIGNMENT_CENTER);
+		Panel topPanel = new Panel();
+		GridLayoutManager topManager = new GridLayoutManager(2, 1);
+		topPanel.setLayoutManager(topManager);
+		topManager.addWidget(directoryList, 0, 0, 1, 1, ALIGNMENT_CENTER,
+				ALIGNMENT_CENTER);
+		topManager.addWidget(fileList, 1, 0, 1, 1, ALIGNMENT_CENTER,
+				ALIGNMENT_CENTER);
 
-    Panel bottomPanel = new Panel();
-    GridLayoutManager bottomManager = new GridLayoutManager(4, 4);
-    bottomPanel.setLayoutManager(bottomManager);
-    bottomManager.addWidget(_fileLabel, 0, 0, 1, 1, ALIGNMENT_CENTER, ALIGNMENT_RIGHT);
-    bottomManager.addWidget(_filterLabel, 0, 2, 1, 1, ALIGNMENT_CENTER, ALIGNMENT_RIGHT);
-    bottomManager.addWidget(_fileField, 1, 0, 2, 1, ALIGNMENT_CENTER, ALIGNMENT_CENTER);
-    bottomManager.addWidget(_filterField, 1, 2, 2, 1, ALIGNMENT_CENTER, ALIGNMENT_CENTER);
-    bottomManager.addWidget(_okButton, 3, 0, 1, 1, ALIGNMENT_CENTER, ALIGNMENT_CENTER);
-    bottomManager.addWidget(_cancelButton, 3, 2, 1, 1, ALIGNMENT_CENTER, ALIGNMENT_CENTER);
+		// TODO: Clean up all the constants to understandable variables.
+		Panel bottomPanel = new Panel();
+		GridLayoutManager bottomManager = new GridLayoutManager(4, 4);
+		bottomPanel.setLayoutManager(bottomManager);
+		bottomManager.addWidget(fileLabel, 0, 0, 1, 1, ALIGNMENT_CENTER,
+				ALIGNMENT_RIGHT);
+		bottomManager.addWidget(filterLabel, 0, 2, 1, 1, ALIGNMENT_CENTER,
+				ALIGNMENT_RIGHT);
+		bottomManager.addWidget(fileTextField, 1, 0, 2, 1, ALIGNMENT_CENTER,
+				ALIGNMENT_CENTER);
+		bottomManager.addWidget(filterTextField, 1, 2, 2, 1, ALIGNMENT_CENTER,
+				ALIGNMENT_CENTER);
+		bottomManager.addWidget(okButton, 3, 0, 1, 1, ALIGNMENT_CENTER,
+				ALIGNMENT_CENTER);
+		bottomManager.addWidget(cancelButton, 3, 2, 1, 1, ALIGNMENT_CENTER,
+				ALIGNMENT_CENTER);
 
-    DefaultLayoutManager manager = (DefaultLayoutManager)getRootPanel().getLayoutManager();
+		DefaultLayoutManager manager =
+				(DefaultLayoutManager) getRootPanel().getLayoutManager();
 
-    manager.addWidget(topPanel, 0, 0, width - 2, height - 6, ALIGNMENT_CENTER, ALIGNMENT_CENTER);
-    manager.addWidget(bottomPanel, 0, height - 6, width - 2, 4, ALIGNMENT_CENTER, ALIGNMENT_CENTER);
+		manager.addWidget(topPanel, 0, 0, width - 2, height - 6,
+				ALIGNMENT_CENTER, ALIGNMENT_CENTER);
+		manager.addWidget(bottomPanel, 0, height - 6, width - 2, 4,
+				ALIGNMENT_CENTER, ALIGNMENT_CENTER);
 
-    fillListWidgets(getCurrentDirectory());
-  }
+		fillListWidgets(getCurrentDirectory());
+	}
 
-  /**
-   * The constructor
-   * 
-   * @param title dialog's title
-   */
-  public FileDialog(String title)
-  {
-    this(Toolkit.getScreenWidth() / 4, Toolkit.getScreenHeight() / 4, Toolkit.getScreenWidth() / 2, Toolkit.getScreenHeight() / 2, title);
-  }
+	/**
+	 * The constructor.
+	 * 
+	 * @param title
+	 *            dialog's title.
+	 */
+	public FileDialog(final String title) {
+		this(TOP_LEFT_X, TOP_LEFT_Y, WIDTH, HEIGHT, title);
+	}
 
-  /**
-   * The constructor
-   *  
-   */
-  public FileDialog()
-  {
-    this(null);
-  }
+	/**
+	 * The default constructor.
+	 * 
+	 */
+	public FileDialog() {
+		this(null);
+	}
 
-  /**
-   * Returns the last selected file. Should be called after a return from the <code>show</code> method to read the result. If
-   * <code>null<code> is returned, no file was selected.
-   *
-   * @return selected file
-   */
-  public File getChoosedFile()
-  {
-    if ( _result == null )
-      return null;
+	/**
+	 * Returns the last selected file. Should be called after a return from the
+	 * <code>show</code> method to read the result. If <code>null</code> is
+	 * returned, no file was selected.
+	 * 
+	 * @return selected file
+	 */
+	public final File getChosenFile() {
+		if (fileChoice == null) {
+			return null;
+		}
 
-    return new File(_result);
-  }
+		return new File(fileChoice);
+	}
 
-  /**
-   * Sets the default selected file
-   * 
-   * @param file default selected file, if null, no file is selected per default.
-   */
-  public void setDefaultFile(String file)
-  {
-    _file = file;
-  }
+	/**
+	 * Sets the default selected file.
+	 * 
+	 * @param aFile
+	 *            default selected file, if null, no file is selected per
+	 *            default.
+	 */
+	public final void setDefaultFile(final String aFile) {
+		file = aFile;
+	}
 
-  /**
-   * @return default selected file
-   */
-  public String getDefaultFile()
-  {
-    return _file;
-  }
+	/**
+	 * @return default selected file
+	 */
+	public final String getDefaultFile() {
+		return file;
+	}
 
-  /**
-   * Sets the current directory
-   * 
-   * @param directory current directory
-   */
-  public void setDirectory(String directory)
-  {
-    _directory = directory;
-  }
+	/**
+	 * Sets the current directory.
+	 * 
+	 * @param aDirectory
+	 *            current directory
+	 */
+	public final void setDirectory(final String aDirectory) {
+		directory = aDirectory;
+	}
 
-  /**
-   * @return current directory
-   *  
-   */
-  public String getDirectory()
-  {
-    return _directory;
-  }
+	/**
+	 * @return current directory
+	 * 
+	 */
+	public final String getDirectory() {
+		return directory;
+	}
 
-  public void setFilterFactory(JCursesFileFilterFactory filterFactory)
-  {
-    _filterFactory = filterFactory;
-  }
+	/**
+	 * 
+	 * @param aFilterFactory
+	 *            the filter factory.
+	 */
+	public final void setFilterFactory(
+			final JCursesFileFilterFactory aFilterFactory) {
+		filterFactory = aFilterFactory;
+	}
 
-  /**
-   * Sets a filter string
-   * 
-   * Sets a string used to filter the files, that are shown in selected directories. The filter string can be also modified by user. The filter string has to be
-   * in the form <prefix>* <posfix>, and matches all files, whose names start with <prefix>and end with <postfix>. Both <prefix> and <postfix> can be empty.
-   *
-   * @param filterString filter string
-   */
-  public void setFilterString(String filterString)
-  {
-    _filterString = filterString;
-  }
+	/**
+	 * Sets a filter string
+	 * 
+	 * Sets a string used to filter the files, that are shown in selected
+	 * directories. The filter string can be also modified by user. The filter
+	 * string has to be in the form <prefix>* <posfix>, and matches all files,
+	 * whose names start with <prefix>and end with <postfix>. Both <prefix> and
+	 * <postfix> can be empty.
+	 * 
+	 * @param aFilterString
+	 *            filter string
+	 */
+	public final void setFilterString(final String aFilterString) {
+		filterString = aFilterString;
+	}
 
-  /**
-   * @return filter string
-   *  
-   */
-  public String getFilterString()
-  {
-    return _filterString;
-  }
+	/**
+	 * @return filter string
+	 * 
+	 */
+	public final String getFilterString() {
+		return filterString;
+	}
 
-  /**
-   * Sets the text of the message, that is shown, if an i/o error is occured while the dialog tries to open a directory
-   * 
-   * @param message i/o error message's text
-   */
-  public void setIOErrorMessageText(String message)
-  {
-    _ioErrorText = message;
-  }
+	/**
+	 * Sets the text of the message, that is shown, if an i/o error occurred
+	 * while the dialog tries to open a directory.
+	 * 
+	 * @param message
+	 *            i/o error message's text
+	 */
+	public final void setIOErrorMessageText(final String message) {
+		ioErrorText = message;
+	}
 
-  /**
-   * Sets the title of the message, that is shown, if an i/o error is occured while the dialog tries to open a directory
-   * 
-   * @param message i/o error message's text
-   */
-  public void setIOErrorMessageTitle(String message)
-  {
-    _ioErrorTitle = message;
-  }
+	/**
+	 * Sets the title of the message, that is shown, if an i/o error occurred
+	 * while the dialog tries to open a directory.
+	 * 
+	 * @param message
+	 *            i/o error message's text
+	 */
+	public final void setIOErrorMessageTitle(final String message) {
+		ioErrorTitle = message;
+	}
 
-  public void actionPerformed(ActionEvent e)
-  {
-    if ( e.getSource() == _okButton )
-    {
-      saveResult();
-      close();
-    }
-    else
-      close();
-  }
+	/**
+	 * @param e
+	 *            the action event that triggered this.
+	 */
+	public final void actionPerformed(final ActionEvent e) {
+		if (e.getSource() == okButton) {
+			saveResult();
+			close();
+		} else {
+			close();
+		}
+	}
 
-  public void stateChanged(ItemEvent event)
-  {
-    if ( event.getSource() == _directories )
-    {
-      _file = null;
-      String item = ( (String)event.getItem() ).trim();
-      String backupDirectory = _directory;
+	/**
+	 * @param event
+	 *            the Item event that triggered this.
+	 */
+	public final void stateChanged(final ItemEvent event) {
+		if (event.getSource() == directoryList) {
+			file = null;
+			String item = ((String) event.getItem()).trim();
+			String backupDirectory = directory;
 
-      if ( item.equals("..") )
-      {
-        File directoryFile = new File(_directory);
+			if (item.equals("..")) {
+				File directoryFile = new File(directory);
 
-        if ( directoryFile.getParentFile() == null )
-        {
-          //This can occur only by Win32
-          _inRoots = true;
-          updateListWidgets(true);
-          return;
-        }
+				if (directoryFile.getParentFile() == null) {
+					// This can occur only by Win32
+					inRoots = true;
+					updateListWidgets(true);
+					return;
+				}
 
-        _directory = new File(_directory).getParentFile().getAbsolutePath();
-      }
-      else
-      {
-        if ( ! _inRoots )
-          _directory = getCurrentDirectory() + event.getItem();
-        else
-          _directory = (String)event.getItem();
-      }
+				directory =
+						new File(directory).getParentFile().getAbsolutePath();
+			} else {
+				if (!inRoots) {
+					directory = getCurrentDirectory() + event.getItem();
+				} else {
+					directory = (String) event.getItem();
+				}
+			}
 
-      if ( ! checkDirectory(_directory) )
-      {
-        directoryReadErrorMessage();
-        _directory = backupDirectory;
-        return;
-      }
+			if (!checkDirectory(directory)) {
+				directoryReadErrorMessage();
+				directory = backupDirectory;
+				return;
+			}
 
-      _inRoots = false;
+			inRoots = false;
 
-      updateListWidgets();
-      updateFileField();
-    }
-    else if ( event.getSource() == _files )
-    {
-      _file = getCurrentDirectory() + event.getItem();
-      updateFileField();
-    }
-  }
+			updateListWidgets();
+			updateFileField();
+		} else if (event.getSource() == fileList) {
+			file = getCurrentDirectory() + event.getItem();
+			updateFileField();
+		}
+	}
 
-  /**
-   * Shows the i/o error message, if an i/o occcurs reading a directory. In the default implementation uses texts set with <code>setIOErrorMessageTitle</code>
-   * and <code>setIOErrorMessageText</code>. can be modified in derived classes.
-   */
-  protected void directoryReadErrorMessage()
-  {
-    new Message(_ioErrorTitle, _ioErrorText, "OK").show();
-  }
+	/**
+	 * Shows the i/o error message occurring when reading a directory. In the
+	 * default implementation uses texts set with
+	 * <code>setIOErrorMessageTitle</code> and
+	 * <code>setIOErrorMessageText</code>. can be modified in derived classes.
+	 */
+	protected final void directoryReadErrorMessage() {
+		new Message(ioErrorTitle, ioErrorText, "OK").show();
+	}
 
-  protected void onChar(InputChar inp)
-  {
-    if ( inp.equals(__returnChar) )
-    {
-      if ( _filterField.hasFocus() )
-      {
-        setFilterString(_filterField.getText());
-        updateListWidgets();
-      }
-      else
-      {
-        saveResult();
-        close();
-      }
-    }
-  }
+	/**
+	 * @param inp
+	 *            the input character
+	 */
+	protected final void onChar(final InputChar inp) {
+		if (inp.equals(returnChar)) {
+			if (filterTextField.hasFocus()) {
+				setFilterString(filterTextField.getText());
+				updateListWidgets();
+			} else {
+				saveResult();
+				close();
+			}
+		}
+	}
 
-  private String getCurrentDirectory()
-  {
-    if ( _directory == null )
-      _directory = System.getProperty("user.dir");
+	/**
+	 * 
+	 * @return the current directory.
+	 */
+	private String getCurrentDirectory() {
+		if (directory == null) {
+			directory = System.getProperty("user.dir");
+		}
 
-    File directoryFile = new File(_directory);
-    String directoryPath = directoryFile.getAbsolutePath().trim();
+		File directoryFile = new File(directory);
+		String directoryPath = directoryFile.getAbsolutePath().trim();
 
-    if ( ! directoryPath.endsWith(File.separator) )
-      directoryPath = directoryPath + File.separator;
+		if (!directoryPath.endsWith(File.separator)) {
+			directoryPath = directoryPath + File.separator;
+		}
 
-    return directoryPath;
-  }
+		return directoryPath;
+	}
 
-  private String getCurrentFileContent()
-  {
-    String content = ( _file != null ) ? _file : getCurrentDirectory();
+	/**
+	 * 
+	 * @return the current file content or the current directory, if no file is
+	 *         current.
+	 */
+	private String getCurrentFileContent() {
+		String content;
+		if (file != null) {
+			content = file;
+		} else {
+			content = getCurrentDirectory();
+		}
 
-    return content;
-  }
+		return content;
+	}
 
-  private String getRelativePath(File file, String directoryPath)
-  {
-    String path = file.getAbsolutePath().trim();
+	/**
+	 * 
+	 * @param file
+	 *            the specified file
+	 * @param dirPath
+	 *            the directory path to the file
+	 * @return the absolute path.
+	 */
+	private String getRelativePath(final File file, final String dirPath) {
+		String path = file.getAbsolutePath().trim();
 
-    if ( path.startsWith(directoryPath) )
-      path = path.substring(directoryPath.length(), path.length());
+		if (path.startsWith(dirPath)) {
+			path = path.substring(dirPath.length(), path.length());
+		}
 
-    if ( path.endsWith(File.separator) )
-      path = path.substring(0, ( path.length() - 1 ));
+		if (path.endsWith(File.separator)) {
+			path = path.substring(0, (path.length() - 1));
+		}
 
-    return path;
-  }
+		return path;
+	}
+	/**
+	 * check whether this is MS Windows OS.
+	 * @return true if file separator is retarded (literally).
+	 */
+	private boolean isWindows() {
+		return (File.separatorChar == '\\');
+	}
+	/**
+	 * Check whether the a specified file is a directory and readable.
+	 * @param directory the specified directory
+	 * @return true if "directory" is a directory and readable.
+	 */
+	private boolean checkDirectory(final String directory) {
+		File file = new File(directory);
+		return (file.exists() && file.isDirectory() && file.canRead());
+	}
+	/**
+	 * Method description needed.
+	 */
+	private void fillDirectoriesWidgetWithRoots() {
+		File[] roots = File.listRoots();
 
-  private boolean isWindows()
-  {
-    return ( File.separatorChar == '\\' );
-  }
+		for (int i = 0; i < roots.length; i++) {
+			directoryList.add(roots[i].getAbsolutePath());
+		}
+	}
 
-  private boolean checkDirectory(String directory)
-  {
-    File file = new File(directory);
-    return ( file.exists() && file.isDirectory() && file.canRead() );
-  }
+	/**
+	 * Method description needed.
+	 * @param directory the specified directory.
+	 */
+	private void fillListWidgets(final String directory) {
+		File directoryFile = new File(directory);
 
-  private void fillDirectoriesWidgetWithRoots()
-  {
-    File[] roots = File.listRoots();
+		if (directoryFile.isDirectory()) {
+			File[] files =
+					directoryFile.listFiles(new FileDialogFileFilter(
+							filterFactory.generateFileFilter(filterString)));
 
-    for ( int i = 0; i < roots.length; i++ )
-      _directories.add(roots[i].getAbsolutePath());
-  }
+			if ((directoryFile.getParentFile() != null) || (isWindows())) {
+				directoryList.add("..");
+			}
 
-  private void fillListWidgets(String directory)
-  {
-    File directoryFile = new File(directory);
+			for (int i = 0; i < files.length; i++) {
+				if (files[i].isDirectory()) {
+					directoryList.add(getRelativePath(files[i], directory));
+				} else {
+					fileList.add(getRelativePath(files[i], directory));
+				}
+			}
+		} else {
+			// Should not happen.
+			new Message("Error",
+					"An error occurred trying to read the directory\n "
+							+ directory, "OK");
+		}
+	}
 
-    if ( directoryFile.isDirectory() )
-    {
-      File[] files = directoryFile.listFiles(new FileDialogFileFilter(_filterFactory.generateFileFilter(_filterString)));
+	/**
+	 * save the chosen file.
+	 */
+	private void saveResult() {
+		fileChoice = fileTextField.getText();
+	}
 
-      if ( ( directoryFile.getParentFile() != null ) || ( isWindows() ) )
-        _directories.add("..");
+	/**
+	 * update the file field.
+	 */
+	protected final void updateFileField() {
+		fileTextField.setText(getCurrentFileContent());
+		fileTextField.paint();
+	}
+	/**
+	 * Update the filter field.
+	 */
+	protected final void updateFilterField() {
+		filterTextField.setText(filterString);
+		filterTextField.paint();
+	}
+	/**
+	 * update the list of widgets from the current directory.
+	 */
+	private void updateListWidgets() {
+		final boolean withRoots = false;
+		updateListWidgets(withRoots);
+	}
+	/**
+	 * Updates the list of widgets either from roots
+	 * or from the current directory.
+	 * 
+	 * @param roots  the roots.
+	 */
+	private void updateListWidgets(final boolean roots) {
+		directoryList.clear();
+		fileList.clear();
 
-      for ( int i = 0; i < files.length; i++ )
-      {
-        if ( files[i].isDirectory() )
-          _directories.add(getRelativePath(files[i], directory));
-        else
-          _files.add(getRelativePath(files[i], directory));
-      }
-    }
-    else
-      //Kann eigentlich nicht sein
-      new Message("Error", "An error is occured trying to read the directory\n " + directory, "OK");
-  }
+		if (!roots) {
+			fillListWidgets(getCurrentDirectory());
+		} else {
+			fillDirectoriesWidgetWithRoots();
+		}
 
-  private void saveResult()
-  {
-    _result = _fileField.getText();
-  }
+		directoryList.paint();
+		fileList.paint();
+	}
+}
+/**
+ * This class implements the FileFilter for the File Dialog. 
+ *
+ */
+class FileDialogFileFilter implements FileFilter {
+	/**
+	 * 
+	 */
+	private FileFilter filter = null;
 
-  protected void updateFileField()
-  {
-    _fileField.setText(getCurrentFileContent());
-    _fileField.paint();
-  }
-
-  protected void updateFilterField()
-  {
-    _filterField.setText(_filterString);
-    _filterField.paint();
-  }
-
-  private void updateListWidgets()
-  {
-    updateListWidgets(false);
-  }
-
-  private void updateListWidgets(boolean roots)
-  {
-    _directories.clear();
-    _files.clear();
-
-    if ( ! roots )
-      fillListWidgets(getCurrentDirectory());
-    else
-      fillDirectoriesWidgetWithRoots();
-
-    _directories.paint();
-    _files.paint();
-  }
+	/**
+	 * Constructor.
+	 * @param aFilter the specified filter.
+	 */
+	public FileDialogFileFilter(final FileFilter aFilter) {
+		filter = aFilter;
+	}
+	/**
+	 * 
+	 * @param file the specified file.
+	 * @return true if the file is a directory or the filter
+	 * accepts the file.
+	 * 
+	 */
+	public final boolean accept(final File file) {
+		return (file.isDirectory()) || (filter.accept(file));
+	}
 }
 
-class FileDialogFileFilter implements FileFilter
-{
-  FileFilter _filter = null;
+/**
+ * This class extends TextField.
+ *
+ */
+class FilterTextField extends TextField {
+	/**
+	 * 
+	 */
+	private FileDialog dialogParent = null;
 
-  public FileDialogFileFilter(FileFilter filter)
-  {
-    _filter = filter;
-  }
-
-  public boolean accept(File file)
-  {
-    return ( file.isDirectory() ) || ( _filter.accept(file) );
-  }
-}
-
-class FilterTextField extends TextField
-{
-  FileDialog _dialogParent = null;
-
-  public FilterTextField(FileDialog parent)
-  {
-    _dialogParent = parent;
-  }
-
-  public void unfocus()
-  {
-    setText(_dialogParent.getFilterString());
-    super.unfocus();
-  }
+	/**
+	 * Constructor of the FilterTextField.
+	 * @param parent the parent dialog.
+	 */
+	public FilterTextField(final FileDialog parent) {
+		dialogParent = parent;
+	}
+	/**
+	 * remove focus from the filter string.
+	 */
+	public void unfocus() {
+		setText(dialogParent.getFilterString());
+		super.unfocus();
+	}
 }

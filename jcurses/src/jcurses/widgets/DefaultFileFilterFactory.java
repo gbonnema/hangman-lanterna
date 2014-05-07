@@ -1,77 +1,88 @@
-
 package jcurses.widgets;
 
 import java.io.File;
 import java.io.FileFilter;
 
 /**
- *  Factory for file filters used in FileDialog
- *
+ * Factory for file filters used in FileDialog.
+ * 
  * @see FileDialog
  */
 public class DefaultFileFilterFactory implements JCursesFileFilterFactory {
 	/**
-	 *  Generate a file filter from a string.
-	 *
-	 * @param  filterString  string showing acceptable file patterns
-	 * @return               Filter object modelled on filterString
+	 * Generate a file filter from a string.
+	 * 
+	 * @param filterString
+	 *            string showing acceptable file patterns
+	 * @return Filter object modeled on filterString
 	 */
-	public FileFilter generateFileFilter(String filterString) {
+	public final FileFilter generateFileFilter(final String filterString) {
 		return new DefaultFileFilter(filterString);
 	}
 }
 
 /**
- *  A FileFilter extender to be returned by this the default factory
- *
+ * A FileFilter extender to be returned by this the default factory.
+ * 
  */
 class DefaultFileFilter implements FileFilter {
 
-	String _filterString = null;
+	/**
+	 * 
+	 */
+	private String filterString = null;
 
 	/**
-	 *Constructor for the DefaultFileFilter object
-	 *
-	 * @param  filterString  String specifiying the filter
+	 * Constructor for the DefaultFileFilter object.
+	 * 
+	 * @param aFilterString
+	 *            String specifying the filter
 	 * @see java.io.FileFilter
 	 */
-	DefaultFileFilter(String filterString) {
-		if (filterString != null) {
-			_filterString = filterString.trim();
+	public DefaultFileFilter(final String aFilterString) {
+		if (aFilterString != null) {
+			filterString = aFilterString.trim();
 		}
 	}
 
 	/**
-	 *  Description of the Method
-	 *
-	 * @param  fileF  File to test for membership in filter set
-	 * @return        true if member
+	 * Description of the Method.
+	 * 
+	 * @param fileF
+	 *            File to test for membership in filter set
+	 * @return true if member
 	 */
-	public boolean accept(File fileF) {
-		if ((_filterString == null) || (fileF == null)) {
+	public final boolean accept(final File fileF) {
+		if ((filterString == null) || (fileF == null)) {
 			return true;
 		}
 
 		String file = fileF.getAbsolutePath().trim();
 
 		if (file.lastIndexOf(File.separator) != -1) {
-			file = file.substring(file.lastIndexOf(File.separator) + 1, file.length());
+			file =
+					file.substring(file.lastIndexOf(File.separator) + 1,
+							file.length());
 		}
 
-		int index = _filterString.indexOf("*");
+		int index = filterString.indexOf("*");
 
 		if (index == -1) {
-			return (_filterString.equals(file));
+			return (filterString.equals(file));
 		} else if (index == 0) {
-			if (_filterString.length() == 1) {
+			if (filterString.length() == 1) {
 				return true;
 			}
 
-			return file.endsWith(_filterString.substring(1, _filterString.length()));
-		} else if (index == (_filterString.length() - 1)) {
-			return file.startsWith(_filterString.substring(0, _filterString.length() - 1));
+			return file.endsWith(filterString.substring(1,
+					filterString.length()));
+		} else if (index == (filterString.length() - 1)) {
+			return file.startsWith(filterString.substring(0,
+					filterString.length() - 1));
 		} else {
-			return (file.startsWith(_filterString.substring(0, index))) && (file.endsWith(_filterString.substring(index + 1, _filterString.length())));
+			return (file.startsWith(filterString.substring(0, index)))
+					&& (file.endsWith(filterString.substring(index + 1,
+							filterString.length())));
 		}
 	}
 }

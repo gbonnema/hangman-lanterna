@@ -225,8 +225,8 @@ public class Test extends Window implements ItemListener, ActionListener,
 
 			Protocol.debug("point3");
 
-			if (dial.getChoosedFile() != null) {
-				new Message("Meldung!", dial.getChoosedFile().getAbsolutePath()
+			if (dial.getChosenFile() != null) {
+				new Message("Meldung!", dial.getChosenFile().getAbsolutePath()
 						+ "", "OK").show();
 			}
 

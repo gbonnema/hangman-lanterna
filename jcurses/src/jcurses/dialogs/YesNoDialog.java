@@ -10,7 +10,7 @@ import jcurses.system.Toolkit;
 import jcurses.util.TextUtils;
 import jcurses.widgets.Button;
 import jcurses.widgets.DefaultLayoutManager;
-import jcurses.widgets.Dialog;
+import jcurses.widgets.ModalDialog;
 import jcurses.widgets.Label;
 import jcurses.widgets.WidgetsConstants;
 
@@ -48,7 +48,7 @@ public class YesNoDialog {
 	/**
 	 * The dialog.
 	 */
-	private Dialog dialog;
+	private ModalDialog dialog;
 	/**
 	 * result boolean.
 	 */
@@ -158,7 +158,7 @@ public class YesNoDialog {
 		int mHeight = Math.min(Toolkit.getScreenHeight() - HEIGHT_FACTOR,
 				mLines.length);
 
-		dialog = new Dialog(mWidth + WIDTH_FACTOR, mHeight + HEIGHT_FACTOR,
+		dialog = new ModalDialog(mWidth + WIDTH_FACTOR, mHeight + HEIGHT_FACTOR,
 				true, aTitle);
 
 		DefaultLayoutManager layout = new DefaultLayoutManager();

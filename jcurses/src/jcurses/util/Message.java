@@ -9,7 +9,7 @@ import jcurses.event.ActionEvent;
 import jcurses.event.ActionListener;
 import jcurses.widgets.Button;
 import jcurses.widgets.DefaultLayoutManager;
-import jcurses.widgets.Dialog;
+import jcurses.widgets.ModalDialog;
 import jcurses.widgets.Label;
 import jcurses.widgets.WidgetsConstants;
 
@@ -19,7 +19,7 @@ import jcurses.widgets.WidgetsConstants;
  * button to close the window with an user defined label.
  */
 
-public class Message extends Dialog implements ActionListener {
+public class Message extends ModalDialog implements ActionListener {
 
 	/**
 	 * Constant padding inside the screen edges.

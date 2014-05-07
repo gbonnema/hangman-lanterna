@@ -1,4 +1,3 @@
-
 package jcurses.widgets;
 
 import jcurses.event.ValueChangedEvent;
@@ -14,271 +13,268 @@ import jcurses.util.Rectangle;
 import java.util.Vector;
 
 /**
- * This class implements a popup list. Such list has always one of the items selected and gives the possibility to change this selection ( througth an popup
- * menu that is shown, if the user typed 'enter')
+ * This class implements a pop up list. Such list has always one of the items
+ * selected and gives the possibility to change this selection ( through a
+ * pop up menu that is shown, if the user pressed 'enter')
  */
-public class PopUpList extends Widget
-{
-  Vector                              _items            = new Vector();
-  private static InputChar            __changeValueChar = new InputChar('\n');
-  private ValueChangedListenerManager _listenerManager  = new ValueChangedListenerManager();
-  private int                         _selectedIndex    = - 1;
+public class PopUpList extends Widget {
+	Vector _items = new Vector();
+	private static InputChar changeValueChar = new InputChar('\n');
+	private ValueChangedListenerManager listenerManager =
+			new ValueChangedListenerManager();
+	private int selectedIndex = -1;
 
-  /**
-   * Sets colors used to paint the widget, if it has focus
-   * 
-   * @param aColors colors used to paint the widget, if it has focus
-   * @deprecated Use setSelectedColors()
-   */
-  public void setFocusedPopUpColors(CharColor aColors)
-  {
-    setSelectedColors(aColors);
-  }
+	/**
+	 * Sets colors used to paint the widget, if it has focus
+	 * 
+	 * @param aColors
+	 *            colors used to paint the widget, if it has focus
+	 * @deprecated Use setSelectedColors()
+	 */
+	public void setFocusedPopUpColors(final CharColor aColors) {
+		setSelectedColors(aColors);
+	}
 
-  /**
-   * The the colors used to paint the widget if it has focus.
-   * 
-   * @return focus widget colors
-   * @deprecated Use getSelectedColors()
-   */
-  public CharColor getFocusedPopUpColors()
-  {
-    return getSelectedColors();
-  }
+	/**
+	 * The the colors used to paint the widget if it has focus.
+	 * 
+	 * @return focus widget colors
+	 * @deprecated Use getSelectedColors()
+	 */
+	public CharColor getFocusedPopUpColors() {
+		return getSelectedColors();
+	}
 
-  /**
-   * Sets the currently selected index
-   * 
-   * @param aIdx DOCUMENT ME!
-   * 
-   * @throws IndexOutOfBoundsException DOCUMENT ME!
-   */
-  public void setSelectedIndex(int aIdx)
-  {
-    if ( ( aIdx < - 1 ) || ( aIdx >= _items.size() ) )
-    {
-      throw new IndexOutOfBoundsException(aIdx + " is not a valid index and can not be selected.");
-    }
+	/**
+	 * Sets the currently selected index
+	 * 
+	 * @param aIdx the index to select.
+	 * 
+	 * throws IndexOutOfBoundsException DOCUMENT ME!
+	 */
+	public void setSelectedIndex(final int aIdx) {
+		if ((aIdx < -1) || (aIdx >= _items.size())) {
+			throw new IndexOutOfBoundsException(aIdx
+					+ " is not a valid index and can not be selected.");
+		}
 
-    _selectedIndex = aIdx;
-    repaint();
-  }
+		selectedIndex = aIdx;
+		repaint();
+	}
 
-  /**
-   * Returns the currently selected index
-   * 
-   * @return currently selected index
-   */
-  public int getSelectedIndex()
-  {
-    if ( _selectedIndex != - 1 )
-    {
-      return _selectedIndex;
-    }
+	/**
+	 * Returns the currently selected index
+	 * 
+	 * @return currently selected index
+	 */
+	public int getSelectedIndex() {
+		if (selectedIndex != -1) {
+			return selectedIndex;
+		}
 
-    if ( _items.size() > 0 )
-    {
-      return 0;
-    }
+		if (_items.size() > 0) {
+			return 0;
+		}
 
-    return - 1;
-  }
+		return -1;
+	}
 
-  /**
-   * Sets the currently selected item
-   * 
-   * @param aItem DOCUMENT ME!
-   */
-  public void setSelectedItem(String aItem)
-  {
-    setSelectedIndex(_items.indexOf(aItem));
-  }
+	/**
+	 * Sets the currently selected item
+	 * 
+	 * @param aItem
+	 *            DOCUMENT ME!
+	 */
+	public void setSelectedItem(final String aItem) {
+		setSelectedIndex(_items.indexOf(aItem));
+	}
 
-  /**
-   * Returns the currently selected item
-   * 
-   * @return currently selected item
-   */
-  public String getSelectedItem()
-  {
-    if ( getSelectedIndex() >= 0 )
-    {
-      return (String)_items.elementAt(getSelectedIndex());
-    }
+	/**
+	 * Returns the currently selected item
+	 * 
+	 * @return currently selected item
+	 */
+	public String getSelectedItem() {
+		if (getSelectedIndex() >= 0) {
+			return (String) _items.elementAt(getSelectedIndex());
+		}
 
-    return null;
-  }
+		return null;
+	}
 
-  /**
-   * Adds an item
-   * 
-   * @param item the item to add
-   */
-  public void add(String item)
-  {
-    _items.add(item);
-  }
+	/**
+	 * Adds an item
+	 * 
+	 * @param item
+	 *            the item to add
+	 */
+	public void add(final String item) {
+		_items.add(item);
+	}
 
-  /**
-   * Adds an item at the specified position
-   * 
-   * @param pos position
-   * @param item the item to add
-   */
-  public void add(int pos, String item)
-  {
-    _items.add(pos, item);
-  }
+	/**
+	 * Adds an item at the specified position
+	 * 
+	 * @param pos
+	 *            position
+	 * @param item
+	 *            the item to add
+	 */
+	public void add(final int pos, final String item) {
+		_items.add(pos, item);
+	}
 
-  /**
-   * Adds a listener to register selected value changes
-   * 
-   * @param listener DOCUMENT ME!
-   */
-  public void addListener(ValueChangedListener listener)
-  {
-    _listenerManager.addListener(listener);
-  }
+	/**
+	 * Adds a listener to register selected value changes
+	 * 
+	 * @param listener
+	 *            DOCUMENT ME!
+	 */
+	public void addListener(final ValueChangedListener listener) {
+		listenerManager.addListener(listener);
+	}
 
-  /**
-   * Clears the item list
-   */
-  public void clear()
-  {
-    _items.clear();
-  }
+	/**
+	 * Clears the item list
+	 */
+	public void clear() {
+		_items.clear();
+	}
 
-  /**
-   * Removes the first ocuurence of the specified item
-   * 
-   * @param item item to be removed
-   */
-  public void remove(String item)
-  {
-    _items.remove(item);
-  }
+	/**
+	 * Removes the first ocuurence of the specified item
+	 * 
+	 * @param item
+	 *            item to be removed
+	 */
+	public void remove(final String item) {
+		_items.remove(item);
+	}
 
-  /**
-   * Removes the item at the specified position
-   * 
-   * @param pos position
-   */
-  public void remove(int pos)
-  {
-    _items.remove(pos);
-  }
+	/**
+	 * Removes the item at the specified position
+	 * 
+	 * @param pos
+	 *            position
+	 */
+	public void remove(final int pos) {
+		_items.remove(pos);
+	}
 
-  /**
-   * Removes a listener
-   * 
-   * @param listener DOCUMENT ME!
-   */
-  public void removeListener(ValueChangedListener listener)
-  {
-    _listenerManager.removeListener(listener);
-  }
+	/**
+	 * Removes a listener
+	 * 
+	 * @param listener
+	 *            DOCUMENT ME!
+	 */
+	public void removeListener(final ValueChangedListener listener) {
+		listenerManager.removeListener(listener);
+	}
+	/**
+	 * @return true always.
+	 */
+	protected boolean isFocusable() {
+		return true;
+	}
+	/**
+	 * @return a rectangle with the preferred size.
+	 */
+	protected Rectangle getPreferredSize() {
+		return new Rectangle(2 + getMaxLength(), 1);
+	}
 
-  protected boolean isFocusable()
-  {
-    return true;
-  }
+	/**
+	 * 
+	 */
+	protected void doPaint() {
+		Rectangle rect = (Rectangle) getSize().clone();
+		rect.setLocation(getAbsoluteX(), getAbsoluteY());
 
-  protected Rectangle getPreferredSize()
-  {
-    return new Rectangle(2 + getMaxLength(), 1);
-  }
+		String text = "[" + getText() + "]";
+		CharColor colors = hasFocus() ? getFocusedPopUpColors() : getColors();
+		Toolkit.printString(text, rect, colors);
+	}
+	/**
+	 * 
+	 */
+	protected void doRepaint() {
+		doPaint();
+	}
+	/**
+	 * 
+	 */
+	protected void focus() {
+		paint();
+	}
+	/**
+	 * Handle the input for this pop up list.
+	 * @param ch the input character
+	 * @return true if the character could be handled properly.
+	 */
+	protected boolean handleInput(final InputChar ch) {
+		if (ch.equals(changeValueChar)) {
+			if (_items.size() > 1) {
+				PopUpMenu menu =
+						new PopUpMenu(getAbsoluteX(), getAbsoluteY(), null);
 
-  protected void doPaint()
-  {
-    Rectangle rect = (Rectangle)getSize().clone();
-    rect.setLocation(getAbsoluteX(), getAbsoluteY());
+				for (int i = 0; i < _items.size(); i++)
+					menu.add((String) _items.elementAt(i));
 
-    String text = "[" + getText() + "]";
-    CharColor colors = hasFocus() ? getFocusedPopUpColors() : getColors();
-    Toolkit.printString(text, rect, colors);
-  }
+				menu.select(getSelectedIndex());
+				menu.show();
 
-  protected void doRepaint()
-  {
-    doPaint();
-  }
+				if ((menu.getSelectedIndex() != -1)
+						&& (menu.getSelectedIndex() != getSelectedIndex())) {
+					selectedIndex = menu.getSelectedIndex();
+					paint();
+					listenerManager.handleEvent(new ValueChangedEvent(this));
+				}
+			}
 
-  protected void focus()
-  {
-    paint();
-  }
+			return true;
+		}
 
-  protected boolean handleInput(InputChar ch)
-  {
-    if ( ch.equals(__changeValueChar) )
-    {
-      if ( _items.size() > 1 )
-      {
-        PopUpMenu menu = new PopUpMenu(getAbsoluteX(), getAbsoluteY(), null);
+		return false;
+	}
+	/**
+	 * 
+	 */
+	protected void unfocus() {
+		paint();
+	}
 
-        for ( int i = 0; i < _items.size(); i++ )
-          menu.add((String)_items.elementAt(i));
+	private int getMaxLength() {
+		int result = 0;
 
-        menu.select(getSelectedIndex());
-        menu.show();
+		for (int i = 0; i < _items.size(); i++) {
+			String item = (String) _items.elementAt(i);
 
-        if ( ( menu.getSelectedIndex() != - 1 ) && ( menu.getSelectedIndex() != getSelectedIndex() ) )
-        {
-          _selectedIndex = menu.getSelectedIndex();
-          paint();
-          _listenerManager.handleEvent(new ValueChangedEvent(this));
-        }
-      }
+			if (item.length() > result) {
+				result = item.length();
+			}
+		}
 
-      return true;
-    }
+		return result;
+	}
 
-    return false;
-  }
+	private String getText() {
+		String result = null;
+		int length = getSize().getWidth() - 2;
+		String item = (getSelectedItem() == null) ? "" : getSelectedItem();
 
-  protected void unfocus()
-  {
-    paint();
-  }
+		if (item.length() > length) {
+			result = item.substring(0, length);
+		} else {
+			StringBuffer buf = new StringBuffer();
+			buf.append(item);
 
-  private int getMaxLength()
-  {
-    int result = 0;
+			for (int i = 0; i < (length - item.length()); i++) {
+				buf.append(' ');
+			}
 
-    for ( int i = 0; i < _items.size(); i++ )
-    {
-      String item = (String)_items.elementAt(i);
+			result = buf.toString();
+		}
 
-      if ( item.length() > result )
-      {
-        result = item.length();
-      }
-    }
-
-    return result;
-  }
-
-  private String getText()
-  {
-    String result = null;
-    int length = getSize().getWidth() - 2;
-    String item = ( getSelectedItem() == null ) ? "" : getSelectedItem();
-
-    if ( item.length() > length )
-    {
-      result = item.substring(0, length);
-    }
-    else
-    {
-      StringBuffer buf = new StringBuffer();
-      buf.append(item);
-
-      for ( int i = 0; i < ( length - item.length() ); i++ )
-        buf.append(' ');
-
-      result = buf.toString();
-    }
-
-    return result;
-  }
+		return result;
+	}
 }

@@ -389,7 +389,7 @@ public abstract class Widget
    * widget not bei the widget currenty having focus, except the having focus widget handles ALL chars and tells this throuth the method
    * <code>handleAllPrintableChars</code>. To enable shortcuts for a new widget, you must override this method.
    */
-  protected Vector getShortCutsList()
+  protected Vector getShortCutList()
   {
     return null;
   }
