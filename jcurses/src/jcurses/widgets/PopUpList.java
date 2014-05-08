@@ -18,7 +18,7 @@ import java.util.Vector;
  * pop up menu that is shown, if the user pressed 'enter')
  */
 public class PopUpList extends Widget {
-	Vector _items = new Vector();
+	private Vector _items = new Vector();
 	private static InputChar changeValueChar = new InputChar('\n');
 	private ValueChangedListenerManager listenerManager =
 			new ValueChangedListenerManager();
