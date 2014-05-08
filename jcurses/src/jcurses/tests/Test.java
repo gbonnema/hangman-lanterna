@@ -238,8 +238,8 @@ public class Test extends Window implements ItemListener, ActionListener,
 
 			paint();
 		} else {
-			new Message("Meldung!", "01234567890\nassssssss\naaaaaaa\naaaaaa",
-					"CANCEL").show();
+			new Message("<<Meldung!>>",
+					"01234567890\nassssssss\naaaaaaa\naaaaaa", "CANCEL").show();
 
 			final int popUpTopLeftX = 53;
 			final int popUpTopLeftY = 5;

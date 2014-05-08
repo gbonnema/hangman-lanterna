@@ -86,7 +86,7 @@ public final class Toolkit {
 	/**
 	 * 
 	 */
-	private static final String LIBRARY_NAME = "jcurses";
+	private static final String LIBRARY_NAME = "jcurses64";
 
 	static {
 		System.loadLibrary(LIBRARY_NAME);

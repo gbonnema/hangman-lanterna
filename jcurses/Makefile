@@ -6,7 +6,7 @@ JAVAH=$(JAVAHOME)/bin/javah
 JAVA=$(JAVAHOME)/bin/java
 JAVADOC=$(JAVAHOME)/bin/javadoc
 GCC=gcc
-GCCFLAGS=-Wall -shared -fPIC -I$(JAVAHOME)/include -I$(JAVAHOME)/include/xkbcommon 
+GCCFLAGS=-Wall -shared -fPIC -I$(JAVAHOME)/include -I$(JAVAHOME)/include/linux 
 CLASSPATH=./classes
 
 default: native

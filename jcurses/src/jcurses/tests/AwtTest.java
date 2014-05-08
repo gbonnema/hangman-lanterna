@@ -18,21 +18,9 @@ public class AwtTest extends Frame implements ItemListener {
 	 * Required because the java.awt.Frame is serializable.
 	 */
 	private static final long serialVersionUID = 1L;
-	/**
-	 * Frame width.
-	 */
 	private final int width = 200;
-	/**
-	 * Frame height.
-	 */
 	private final int height = 200;
-	/**
-	 * X of left top.
-	 */
 	private final int leftTopX = 100;
-	/**
-	 * Y of left top.
-	 */
 	private final int leftTopY = 100;
 	/**
 	 * Constructor for the test.
@@ -69,7 +57,7 @@ public class AwtTest extends Frame implements ItemListener {
 
 	/**
 	 * Main.
-	 * @param args the commandline arguments.
+	 * @param args the command line arguments.
 	 */
 	public static void main(final String[] args) {
 		AwtTest test = new AwtTest();
