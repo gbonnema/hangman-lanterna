@@ -6,6 +6,7 @@ package todo;
 import java.io.IOException;
 
 /**
+ * The Todo class shows the todolist.
  * @author gbonnema
  *
  */
