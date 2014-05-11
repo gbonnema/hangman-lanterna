@@ -5,10 +5,13 @@ package vocabulary;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import util.ExperimentException;
 
 /**
  * @author gbonnema
@@ -35,16 +38,30 @@ public class VocabTest {
 	 */
 	@Test
 	public void testVocab() throws Exception {
-		String expectedPrefix, expectedSuffix, actual;
 		Vocab vocab = new Vocab("nederlands.csv");
 
-		expectedPrefix =
+		String expectedPrefix =
 				"/home/gbonnema/projects/ws"
 						+ "/terminal/nederlands.csv: [een meer, een broodje";
-		expectedSuffix = "je voornaam]";
-		actual = vocab.toString();
+		String expectedSuffix = "voornaam]";
+		String actual = vocab.toString();
 		assertTrue(actual.startsWith(expectedPrefix));
-		assertTrue(actual.endsWith(expectedSuffix));
-		assertEquals(actual, expectedSuffix);
+		int endOffset = actual.length() - expectedSuffix.length();
+		assertEquals(expectedSuffix, actual.substring(endOffset));
+		// assertTrue(actual.endsWith(expectedSuffix));
+	}
+
+	/**
+	 * Test method for {@link vocabulary.Vocab#Vocab(java.lang.String)}.
+	 */
+	@Test
+	public void testException() throws Exception {
+
+		try {
+			Vocab vocab = new Vocab("xxx.csv");
+			fail("Should have thrown an exception.");
+		} catch (ExperimentException e) {
+			assertTrue(true);
+		}
 	}
 }

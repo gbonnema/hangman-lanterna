@@ -26,7 +26,7 @@ public class Vocab {
 		wordList = new ArrayList<>();
 		Utils.checkNotNull(fname, "fname");
 		File file = new File(fname);
-		Utils.checkNotNull(file, "vocabulary filename");
+		Utils.checkNotNull(file, "vocabulary filename for " + fname);
 		absPathName = file.getAbsolutePath();
 		if (file.exists() && file.canRead() && file.isFile()) {
 			FileInputStream fin = new FileInputStream(file);
@@ -45,6 +45,11 @@ public class Vocab {
 				wordList.add(word);
 			}
 			in.close();
+		} else {
+			String msg =
+					"File " + fname + " does not exist "
+							+ "or is not readable " + "or is not a file.";
+			throw new ExperimentException(msg);
 		}
 	}
 
@@ -53,6 +58,6 @@ public class Vocab {
 	 */
 	@Override
 	public String toString() {
-		return String.format("%s: %s\n", absPathName, wordList);
+		return String.format("%s: %s", absPathName, wordList);
 	}
 }
