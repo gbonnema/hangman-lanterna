@@ -3,7 +3,12 @@
  */
 package screen;
 
+import hangman.HangmanDoc;
+
+import java.util.List;
+
 import util.ExperimentException;
+import util.TextView;
 import util.Utils;
 
 import com.googlecode.lanterna.TerminalFacade;
@@ -26,13 +31,23 @@ public class MainScreen {
 	TerminalPosition prompt;
 	TerminalPosition promptStr;
 
-	TerminalPosition doc;
+	TerminalPosition docTopLeft, docBottomRight;
 
+	private int nrPromptLines = 2;
 	private int promptLine;
+	private int centerline;
 	private String promptChar;
+
+	private TextView view;
 
 	public MainScreen() throws ExperimentException {
 		buildScreen();
+		view = new TextView();
+		HangmanDoc docText = new HangmanDoc();
+		String text = docText.getLongDescription();
+		int pageSize = docBottomRight.getRow() - docTopLeft.getRow() + 1;
+		int pageWidth = docBottomRight.getColumn() - docTopLeft.getColumn() + 1;
+		view.formatPage(text, pageSize - 2, pageWidth - 2);
 	}
 
 	public void stopScreen() {
@@ -40,6 +55,7 @@ public class MainScreen {
 	}
 
 	private void buildScreen() throws ExperimentException {
+		int x, y, padding;
 		screen = TerminalFacade.createScreen();
 		terminal = screen.getTerminal();
 		screenWriter = new ScreenWriter(screen);
@@ -52,10 +68,20 @@ public class MainScreen {
 		promptLine = screen.getTerminalSize().getRows() - 1;
 		screen.startScreen();
 
-		/* set hangman doc area */
+		int screenWidth = screen.getTerminalSize().getColumns();
+		centerline = screenWidth / 2;
+
+		padding = 2; /* number of characters padding */
+		// width = screenWidth - centerline - 2 * padding;
+		x = centerline + padding;
+		y = 2;
+		docTopLeft = new TerminalPosition(x, y);
+
+		x = screenWidth - padding;
+		y = screen.getTerminalSize().getRows() - nrPromptLines - 1;
+		docBottomRight = new TerminalPosition(x, y);
 
 		screen.clear(); // is with default back/foreground colors
-		screen.refresh();
 		screenWriter.setForegroundColor(Terminal.Color.BLUE);
 		screenWriter.setBackgroundColor(Terminal.Color.WHITE);
 
@@ -64,6 +90,10 @@ public class MainScreen {
 		drawPrompt();
 
 		drawScreenSize();
+
+		/* set hangman doc area */
+		drawBox(docTopLeft, docBottomRight);
+		writeTextInBox(view, docTopLeft, docBottomRight);
 
 		screen.setCursorPosition(prompt);
 		screen.refresh();
@@ -97,6 +127,77 @@ public class MainScreen {
 	private void drawHorLine(int line, String ch) throws ExperimentException {
 		String horLine = createHorLine(ch);
 		screenWriter.drawString(0, line, horLine);
+	}
+
+	private void
+			drawBox(final TerminalPosition from, final TerminalPosition to)
+					throws ExperimentException {
+
+		String topStr, bottomStr, midStr;
+		int left = from.getColumn();
+		int right = to.getColumn();
+		int top = from.getRow();
+		int bottom = to.getRow();
+		int width = right - left + 1;
+		Utils.check(width >= 5, "minimum width box = 5. specified: " + width
+				+ "\n" + "\n" + "from = " + from + ", to = " + to + "\n");
+
+		topStr = fillLine('+', '+', '-', width);
+		bottomStr = fillLine('+', '+', '-', width);
+		midStr = fillLine('|', '|', ' ', width);
+		/* Draw top and bottom first */
+		screenWriter.drawString(left, top, topStr);
+		screenWriter.drawString(left, bottom, bottomStr);
+		/* Now draw the middle */
+		int height = bottom - top + 1;
+		int innerheight = height - 2;
+		for (int i = 0; i < innerheight; i++) {
+			int x = left;
+			int y = top + 1 + i;
+			screenWriter.drawString(x, y, midStr);
+		}
+	}
+
+	private void writeTextInBox(final TextView view,
+			final TerminalPosition from, final TerminalPosition to)
+			throws ExperimentException {
+		int padding = 2;
+		int left = from.getColumn() + padding;
+		int top = from.getRow();
+
+		List<String> lines = view.page();
+		int nextLine = top + 1;
+		for (String line : lines) {
+			screenWriter.drawString(left, nextLine, line);
+			nextLine++;
+		}
+
+	}
+
+	/**
+	 * Builds a line start with one startchar en ending with an endchar, in the
+	 * middle a midchar. Returns the result.
+	 * 
+	 * @param startchar
+	 *            The first character of the line.
+	 * @param endchar
+	 *            The last character of the line.
+	 * @param midchar
+	 *            The characters in the middle
+	 * @param len
+	 *            The length of the line.
+	 * @return the resulting line as a String.
+	 */
+	private String fillLine(final char startchar, final char endchar,
+			final char midchar, final int len) throws ExperimentException {
+		Utils.check(len > 2, "wrong length for filling a line.");
+		StringBuilder result = new StringBuilder();
+		result.append(startchar);
+		for (int i = 1; i < len; i++) {
+			result.append(midchar);
+		}
+		result.append(endchar);
+		return result.toString();
 	}
 
 	private String createHorLine(String ch) throws ExperimentException {

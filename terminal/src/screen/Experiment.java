@@ -15,7 +15,7 @@ public class Experiment {
 		try {
 			Thread.sleep(secs * 1000);
 		} catch (InterruptedException e) {
-
+			// don't care
 		}
 	}
 
