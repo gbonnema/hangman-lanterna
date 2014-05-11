@@ -23,6 +23,8 @@ public class Hangman {
 	private char[] initialGuessCharArray;
 	private int phase;
 
+	private HangmanDoc doc = new HangmanDoc();
+
 	/**
 	 * Constructor for hangman with a specified word.
 	 * 
@@ -133,6 +135,24 @@ public class Hangman {
 	 */
 	public char[] getInitialGuessCharArray() {
 		return initialGuessCharArray;
+	}
+
+	/**
+	 * Return the long description for this game.
+	 * 
+	 * @return the long description for this game.
+	 */
+	public String getLongDescription() {
+		return doc.getLongDescription();
+	}
+
+	/**
+	 * Return the short description for this game.
+	 * 
+	 * @return the short description for this game.
+	 */
+	public String getShortDescription() {
+		return doc.getShortDescription();
 	}
 
 	@Override

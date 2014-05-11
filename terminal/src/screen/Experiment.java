@@ -3,6 +3,8 @@
  */
 package screen;
 
+import util.ExperimentException;
+
 /**
  * @author gbonnema
  * 
@@ -20,9 +22,9 @@ public class Experiment {
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws ExperimentException {
 		MainScreen screen = new MainScreen();
-		pause(5);
+		pause(10);
 		screen.stopScreen();
 	}
 

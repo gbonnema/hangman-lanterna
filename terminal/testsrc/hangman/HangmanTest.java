@@ -33,7 +33,6 @@ public class HangmanTest {
 	private String expectResult1 = "_____";
 	private String expectResult2 = "___d_";
 	private String expectResult3 = "_b_db";
-	private Hangman emptyHangman = null;
 	private Hangman hangman;
 
 	/**
@@ -57,7 +56,7 @@ public class HangmanTest {
 	@Test
 	public void testGuessEmpty() {
 		try {
-			emptyHangman = new Hangman(emptyWord);
+			new Hangman(emptyWord);
 			fail("Empty Hangman should not succeed.");
 		} catch (ExperimentException e) {
 			assertTrue(true);
