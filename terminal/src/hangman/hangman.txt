@@ -1,20 +1,11 @@
 Hangman
 =======
 
-This game searches a random word in a vocabulary that shows
-2 words on each line. The first is Dutch, the second word is English,
-like this:
-
-een meer;a lake
-een broodje;a roll
-
-The program chooses from about 300 words.
-
 The goal of the game is to guess a word correctly, thus saving
 a person from the gallows. The player wins if she guesses right before
 execution. Otherwise she loses.
 
-Once chosen the player gets to guess one character at a time.
+Once  word is chosen the player gets to guess one character at a time.
 The player can see how long the word is and every time his guess
 is correct, the player will see where in the word the character
 fits. Once all characters are correct, the player wins.
@@ -29,3 +20,15 @@ the number of parts the hangman is made from, currently 6.
 Have fun guessing words.
 
 Guus Bonnema.
+
+Mechanics
+=========
+
+This game searches a random word in a vocabulary that shows
+2 words on each line. The first is Dutch, the second word is English,
+like this:
+
+een meer;a lake
+een broodje;a roll
+
+The program chooses from about 300 words.

@@ -24,14 +24,18 @@ import com.googlecode.lanterna.terminal.TerminalPosition;
  */
 public class MainScreen {
 
-	Screen screen;
-	Terminal terminal;
-	ScreenWriter screenWriter;
+	private Screen screen;
+	private Terminal terminal;
+	private ScreenWriter screenWriter;
 
-	TerminalPosition prompt;
-	TerminalPosition promptStr;
+	private TerminalPosition prompt;
+	private TerminalPosition promptStr;
 
-	TerminalPosition docTopLeft, docBottomRight;
+	private TerminalPosition docTopLeft, docBottomRight;
+	private TerminalPosition docContentsTopLeft, docContentsBottomRight;
+	private int docPadding = 2;
+	private int docPageSize;
+	private int docPageWidth;
 
 	private int nrPromptLines = 2;
 	private int promptLine;
@@ -42,12 +46,12 @@ public class MainScreen {
 
 	public MainScreen() throws ExperimentException {
 		buildScreen();
-		view = new TextView();
 		HangmanDoc docText = new HangmanDoc();
 		String text = docText.getLongDescription();
-		int pageSize = docBottomRight.getRow() - docTopLeft.getRow() + 1;
-		int pageWidth = docBottomRight.getColumn() - docTopLeft.getColumn() + 1;
-		view.formatPage(text, pageSize - 2, pageWidth - 2);
+		view = new TextView();
+		view.formatPage(text, docPageSize, docPageWidth);
+		writeTextInBox(view, docTopLeft, docBottomRight);
+		screen.refresh();
 	}
 
 	public void stopScreen() {
@@ -76,10 +80,22 @@ public class MainScreen {
 		x = centerline + padding;
 		y = 2;
 		docTopLeft = new TerminalPosition(x, y);
+		x = x + docPadding;
+		y = y + 1;
+		docContentsTopLeft = new TerminalPosition(x, y);
 
 		x = screenWidth - padding;
 		y = screen.getTerminalSize().getRows() - nrPromptLines - 1;
 		docBottomRight = new TerminalPosition(x, y);
+		x = x - docPadding;
+		y = y - 1;
+		docContentsBottomRight = new TerminalPosition(x, y);
+		docPageSize =
+				docContentsBottomRight.getRow() - docContentsTopLeft.getRow()
+						+ 1;
+		docPageWidth =
+				docContentsBottomRight.getColumn()
+						- docContentsTopLeft.getColumn() + 1;
 
 		screen.clear(); // is with default back/foreground colors
 		screenWriter.setForegroundColor(Terminal.Color.BLUE);
@@ -93,7 +109,6 @@ public class MainScreen {
 
 		/* set hangman doc area */
 		drawBox(docTopLeft, docBottomRight);
-		writeTextInBox(view, docTopLeft, docBottomRight);
 
 		screen.setCursorPosition(prompt);
 		screen.refresh();
@@ -165,7 +180,7 @@ public class MainScreen {
 		int left = from.getColumn() + padding;
 		int top = from.getRow();
 
-		List<String> lines = view.page();
+		List<String> lines = view.nextPage();
 		int nextLine = top + 1;
 		for (String line : lines) {
 			screenWriter.drawString(left, nextLine, line);
