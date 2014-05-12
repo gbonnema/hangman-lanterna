@@ -24,9 +24,7 @@ public class Experiment {
 	 */
 	public static void main(String[] args) throws ExperimentException {
 		MainScreen screen = new MainScreen();
-		// pause(20);
 		screen.run();
-		screen.stopScreen();
 	}
 
 }
