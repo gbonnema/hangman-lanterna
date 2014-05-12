@@ -67,7 +67,8 @@ public class TextView {
 	public ArrayList<String> formatLines(String text_, int width_) {
 		Stage stage;
 		int width = width_;
-		String[] lines = text_.split("\n"); // skips an empty line at the end
+		/* Remark: \n at EOF disappears after split */
+		String[] lines = text_.split("\n");
 		ArrayList<String> formatted = new ArrayList<>();
 		StringBuilder para = new StringBuilder();
 		stage = Stage.COPY;
@@ -98,11 +99,17 @@ public class TextView {
 		Stage stage = stage_;
 		String line = line_;
 		int width = width_;
+		/*
+		 * Check for long lines. If so, make it flow.
+		 */
 		if (stage == Stage.COPY) {
 			if (line.length() > 0.5 * width) {
 				stage = Stage.FLOW;
 			}
 		}
+		/*
+		 * End a paragraph with an empty line. EOF works too.
+		 */
 		if (stage == Stage.FLOW) {
 			if (line.length() == 0) {
 				stage = Stage.COPY;
@@ -120,7 +127,7 @@ public class TextView {
 		String glue = "";
 		for (int i = 0; i < words.length; i++) {
 			String word = words[i];
-			if (line.length() + word.length() > width) {
+			if (line.length() + word.length() + glue.length() > width) {
 				para.add(line.toString());
 				line = new StringBuilder();
 				glue = "";
@@ -142,7 +149,21 @@ public class TextView {
 	 *          the specified line
 	 */
 	public void setCurline(int line_) {
-		this.curline = line_;
+		curline = line_;
+	}
+
+	public void pageUp() {
+		/*
+		 * Remark that the curline is pointing to the first line of the next page.
+		 * To get the first line of the previous page we have to return curline to
+		 * -2 * pageSize (if curline is large enough). if not, curline is set to
+		 * zero.
+		 */
+		if (curline >= 2 * pageSize) {
+			curline -= 2 * pageSize;
+		} else {
+			curline = 0;
+		}
 	}
 
 }

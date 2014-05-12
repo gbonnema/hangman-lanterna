@@ -12,6 +12,8 @@ import util.TextView;
 import util.Utils;
 
 import com.googlecode.lanterna.TerminalFacade;
+import com.googlecode.lanterna.input.Key;
+import com.googlecode.lanterna.input.Key.Kind;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.screen.ScreenCharacterStyle;
 import com.googlecode.lanterna.screen.ScreenWriter;
@@ -24,34 +26,94 @@ import com.googlecode.lanterna.terminal.TerminalPosition;
  */
 public class MainScreen {
 
-	private Screen screen;
-	private Terminal terminal;
-	private ScreenWriter screenWriter;
+	private final int					padding				= 2;
 
-	private TerminalPosition prompt;
-	private TerminalPosition promptStr;
+	private boolean						keepRunning;
 
-	private TerminalPosition docTopLeft, docBottomRight;
-	private TerminalPosition docContentsTopLeft, docContentsBottomRight;
-	private int docPadding = 2;
-	private int docPageSize;
-	private int docPageWidth;
+	private Screen						screen;
+	private Terminal					terminal;
+	private ScreenWriter			screenWriter;
+	private int								screenWidth;
 
-	private int nrPromptLines = 2;
-	private int promptLine;
-	private int centerline;
-	private String promptChar;
+	private TerminalPosition	prompt;
+	private TerminalPosition	promptStr;
 
-	private TextView view;
+	private TerminalPosition	docBoxTopLeft, docBoxBottomRight;
+	private TerminalPosition	docContentsTopLeft, docContentsBottomRight;
+	private int								docPadding		= 2;
+	private int								docPageSize;
+	private int								docPageWidth;
 
+	private int								nrPromptLines	= 2;
+	private int								promptLine;
+	private int								centerline;
+	private String						promptChar;
+
+	private TextView					view;
+
+	/**
+	 * The Contructor.
+	 * 
+	 * @throws ExperimentException
+	 *           when something is wrong.
+	 */
 	public MainScreen() throws ExperimentException {
+		/* Only once */
+		initializeScreen();
+		/* every resize */
 		buildScreen();
-		HangmanDoc docText = new HangmanDoc();
-		String text = docText.getLongDescription();
-		view = new TextView();
-		view.formatPage(text, docPageSize, docPageWidth);
-		writeTextInBox(view, docTopLeft, docBottomRight);
+
 		screen.refresh();
+	}
+
+	/**
+	 * Initialize screen variables, only needed at startup. Do not call after
+	 * initial creation.
+	 */
+	private void initializeScreen() {
+		screen = TerminalFacade.createScreen();
+		terminal = screen.getTerminal();
+		screenWriter = new ScreenWriter(screen);
+		screenWriter.setForegroundColor(Terminal.Color.BLUE);
+		screenWriter.setBackgroundColor(Terminal.Color.WHITE);
+
+		screen.startScreen();
+	}
+
+	/**
+	 * Runs the application until the user presses Escape
+	 * 
+	 * @throws ExperimentException
+	 *           for failed readInput.
+	 */
+	public void run() throws ExperimentException {
+		keepRunning = true;
+		while (keepRunning) {
+			Key key = screen.readInput();
+			if (key != null) {
+				handleInput(key);
+			}
+
+			if (screen.resizePending()) {
+				screen.refresh();
+				buildScreen();
+			}
+		}
+
+	}
+
+	private void handleInput(Key key) throws ExperimentException {
+		Kind kind = key.getKind();
+		if (kind == Key.Kind.Escape) {
+			keepRunning = false;
+		} else if (kind == Key.Kind.PageDown) {
+			writeTextInBox(view, docBoxTopLeft, docBoxBottomRight);
+			screen.refresh();
+		} else if (kind == Key.Kind.PageUp) {
+			view.pageUp();
+			writeTextInBox(view, docBoxTopLeft, docBoxBottomRight);
+			screen.refresh();
+		}
 	}
 
 	public void stopScreen() {
@@ -59,61 +121,88 @@ public class MainScreen {
 	}
 
 	private void buildScreen() throws ExperimentException {
-		int x, y, padding;
-		screen = TerminalFacade.createScreen();
-		terminal = screen.getTerminal();
-		screenWriter = new ScreenWriter(screen);
-		promptChar = "$ > ";
 
-		/* create the prompt area */
-		promptLine = screen.getTerminalSize().getRows() - 1;
-		prompt = new TerminalPosition(promptChar.length() + 1, promptLine);
-		promptStr = new TerminalPosition(0, promptLine);
-		promptLine = screen.getTerminalSize().getRows() - 1;
-		screen.startScreen();
-
-		int screenWidth = screen.getTerminalSize().getColumns();
+		screenWidth = screen.getTerminalSize().getColumns();
 		centerline = screenWidth / 2;
 
-		padding = 2; /* number of characters padding */
-		// width = screenWidth - centerline - 2 * padding;
-		x = centerline + padding;
-		y = 2;
-		docTopLeft = new TerminalPosition(x, y);
-		x = x + docPadding;
-		y = y + 1;
-		docContentsTopLeft = new TerminalPosition(x, y);
-
-		x = screenWidth - padding;
-		y = screen.getTerminalSize().getRows() - nrPromptLines - 1;
-		docBottomRight = new TerminalPosition(x, y);
-		x = x - docPadding;
-		y = y - 1;
-		docContentsBottomRight = new TerminalPosition(x, y);
-		docPageSize =
-				docContentsBottomRight.getRow() - docContentsTopLeft.getRow()
-						+ 1;
-		docPageWidth =
-				docContentsBottomRight.getColumn()
-						- docContentsTopLeft.getColumn() + 1;
-
-		screen.clear(); // is with default back/foreground colors
-		screenWriter.setForegroundColor(Terminal.Color.BLUE);
-		screenWriter.setBackgroundColor(Terminal.Color.WHITE);
+		initializePrompt();
 
 		wipeScreen();
 		drawHorDashLine(promptLine - 1);
 		drawPrompt();
 
 		drawScreenSize();
-
-		/* set hangman doc area */
-		drawBox(docTopLeft, docBottomRight);
+		createLongDocPanel();
 
 		screen.setCursorPosition(prompt);
 		screen.refresh();
 	}
 
+	/**
+	 * 
+	 */
+	private void initializePrompt() {
+		/* create the prompt area */
+		promptChar = "$ > ";
+		promptLine = screen.getTerminalSize().getRows() - 1;
+		prompt = new TerminalPosition(promptChar.length() + 1, promptLine);
+		promptStr = new TerminalPosition(0, promptLine);
+		promptLine = screen.getTerminalSize().getRows() - 1;
+	}
+
+	/**
+	 * @throws ExperimentException
+	 */
+	private void createLongDocPanel() throws ExperimentException {
+
+		/* Calculate start and end of the doc box */
+		calcDocBox();
+
+		/* set hangman doc area */
+		drawBox(docBoxTopLeft, docBoxBottomRight);
+
+		/* get the text */
+		HangmanDoc docText = new HangmanDoc();
+		String text = docText.getLongDescription();
+		view = new TextView();
+		view.formatPage(text, docPageSize, docPageWidth);
+		/* Write de docs */
+		writeTextInBox(view, docBoxTopLeft, docBoxBottomRight);
+	}
+
+	/*
+	 * calculates the left top corner and the right top corner relative to the
+	 * screen size. Each resize this is done again so the box will change.
+	 */
+	private void calcDocBox() {
+		int x;
+		int y;
+		// calculate top lines
+		x = centerline + padding;
+		y = 2;
+		docBoxTopLeft = new TerminalPosition(x, y);
+		x = x + docPadding;
+		y = y + 1;
+		docContentsTopLeft = new TerminalPosition(x, y);
+
+		// calculate bottom lines
+		x = screenWidth - padding;
+		y = (int) (screen.getTerminalSize().getRows() * 0.6);
+
+		docBoxBottomRight = new TerminalPosition(x, y);
+		x = x - docPadding;
+		y = y - 1;
+		docContentsBottomRight = new TerminalPosition(x, y);
+		docPageSize =
+				docContentsBottomRight.getRow() - docContentsTopLeft.getRow() + 1;
+		docPageWidth =
+				docContentsBottomRight.getColumn() - docContentsTopLeft.getColumn() + 1;
+	}
+
+	/*
+	 * screen.clear() uses default colors which is why we need to wipe the screen
+	 * by writing empty lines.
+	 */
 	private void wipeScreen() throws ExperimentException {
 		for (int i = 0; i < screen.getTerminalSize().getRows(); i++) {
 			drawHorLine(i, " ");
@@ -144,9 +233,14 @@ public class MainScreen {
 		screenWriter.drawString(0, line, horLine);
 	}
 
-	private void
-			drawBox(final TerminalPosition from, final TerminalPosition to)
-					throws ExperimentException {
+	private void drawHorLine(int line, String ch, int start, int width)
+			throws ExperimentException {
+		String horLine = createHorLine(ch, width);
+		screenWriter.drawString(start, line, horLine);
+	}
+
+	private void drawBox(final TerminalPosition from, final TerminalPosition to)
+			throws ExperimentException {
 
 		String topStr, bottomStr, midStr;
 		int left = from.getColumn();
@@ -154,8 +248,8 @@ public class MainScreen {
 		int top = from.getRow();
 		int bottom = to.getRow();
 		int width = right - left + 1;
-		Utils.check(width >= 5, "minimum width box = 5. specified: " + width
-				+ "\n" + "\n" + "from = " + from + ", to = " + to + "\n");
+		Utils.check(width >= 5, "minimum width box = 5. specified: " + width + "\n"
+				+ "\n" + "from = " + from + ", to = " + to + "\n");
 
 		topStr = fillLine('+', '+', '-', width);
 		bottomStr = fillLine('+', '+', '-', width);
@@ -173,17 +267,22 @@ public class MainScreen {
 		}
 	}
 
-	private void writeTextInBox(final TextView view,
-			final TerminalPosition from, final TerminalPosition to)
-			throws ExperimentException {
-		int padding = 2;
-		int left = from.getColumn() + padding;
+	private void writeTextInBox(final TextView view, final TerminalPosition from,
+			final TerminalPosition to) throws ExperimentException {
 		int top = from.getRow();
+		int left = from.getColumn() + docPadding;
+		int bottom = to.getRow();
 
 		List<String> lines = view.nextPage();
 		int nextLine = top + 1;
 		for (String line : lines) {
+			drawHorLine(nextLine, " ", left, docPageWidth);
 			screenWriter.drawString(left, nextLine, line);
+			nextLine++;
+		}
+		/* Overwrite any following lines from the previous write */
+		while (nextLine < bottom) {
+			drawHorLine(nextLine, " ", left, docPageWidth);
 			nextLine++;
 		}
 
@@ -194,13 +293,13 @@ public class MainScreen {
 	 * middle a midchar. Returns the result.
 	 * 
 	 * @param startchar
-	 *            The first character of the line.
+	 *          The first character of the line.
 	 * @param endchar
-	 *            The last character of the line.
+	 *          The last character of the line.
 	 * @param midchar
-	 *            The characters in the middle
+	 *          The characters in the middle
 	 * @param len
-	 *            The length of the line.
+	 *          The length of the line.
 	 * @return the resulting line as a String.
 	 */
 	private String fillLine(final char startchar, final char endchar,
@@ -216,13 +315,18 @@ public class MainScreen {
 	}
 
 	private String createHorLine(String ch) throws ExperimentException {
-		Utils.check(ch.length() == 1, "String should contain 1 character: "
-				+ ch);
-		int width = screen.getTerminalSize().getColumns();
+		int length = screen.getTerminalSize().getColumns();
+		return createHorLine(ch, length);
+	}
+
+	private String createHorLine(String ch, int length)
+			throws ExperimentException {
+		Utils.check(ch.length() == 1, "String should contain 1 character: " + ch);
 		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < width; i++) {
+		for (int i = 0; i < length; i++) {
 			sb.append(ch);
 		}
 		return sb.toString();
 	}
+
 }
