@@ -7,108 +7,104 @@ import hangman.HangmanDoc;
 
 import java.util.List;
 
-import util.ExperimentException;
 import util.TextView;
 
 import com.googlecode.lanterna.terminal.TerminalPosition;
 
 /**
+ * The panel containing the doc for hangman.
+ * 
  * @author gbonnema
  */
-public class DocPanel {
-
-	private final int					docPadding	= 2;
-
-	private TextDraw					_mainScreen;
-
-	private TerminalPosition	panelSize;
+public class DocPanel extends AbstractPanel {
 
 	private TextView					view;
-	private TerminalPosition	docBoxTopLeft;
-	private TerminalPosition	docBoxBottomRight;
-	private TerminalPosition	docContentsTopLeft;
-	private TerminalPosition	docContentsBottomRight;
-	private int								docPageSize;
-	private int								docPageWidth;
+	private TerminalPosition	origin;
 
 	/**
-	 * Constructor.
+	 * Constructor. Calls AbstractPanel constructor.
+	 * 
+	 * @param mainScreen
+	 *          the screen that organises the panels in one screen.
+	 * @param topleftCorner
+	 *          the topleft corner of the panel.
+	 * @param size
+	 *          the width and height of the panel.
 	 */
-	public DocPanel(TextDraw mainScreen_, int panelId_)
-			throws ExperimentException {
-		_mainScreen = mainScreen_;
+	public DocPanel(TextDraw mainScreen) {
+		super(mainScreen);
+		origin = new TerminalPosition(0, 0);
 		createLongDocPanel();
 	}
 
 	/**
-	 * @param _mainScreen
-	 *          TODO
-	 * @throws ExperimentException
+	 * creates the long description panel.
 	 */
-	void createLongDocPanel() throws ExperimentException {
+	void createLongDocPanel() {
 
 		/* Calculate start and end of the doc box */
-		calcDocBox();
+		// calcDocBox();
 
 		/* set hangman doc area */
-		_mainScreen.drawBox(docBoxTopLeft, docBoxBottomRight);
+		TerminalPosition bottomRight =
+				new TerminalPosition(getWidth() - 1, getHeight() - 1);
+		drawBox(origin, bottomRight);
 
 		/* get the text */
 		HangmanDoc docText = new HangmanDoc();
 		String text = docText.getLongDescription();
 		view = new TextView();
-		view.formatPage(text, docPageSize, docPageWidth);
+		view.formatPage(text, getWidth() - 2 * getPadding(), getHeight() - 2);
 		/* Write the docs */
-		writeTextInBox(docBoxTopLeft, docBoxBottomRight);
-	}
-
-	void calcDocBox() {
-		int x;
-		int y;
-		// calculate top lines
-		x = _mainScreen.centerline + _mainScreen.padding;
-		y = 2;
-		docBoxTopLeft = new TerminalPosition(x, y);
-		x = x + docPadding;
-		y = y + 1;
-		docContentsTopLeft = new TerminalPosition(x, y);
-
-		// calculate bottom lines
-		x = _mainScreen.screenWidth - _mainScreen.padding;
-		y = (int) (_mainScreen.screen.getTerminalSize().getRows() * 0.6);
-
-		docBoxBottomRight = new TerminalPosition(x, y);
-		x = x - docPadding;
-		y = y - 1;
-		docContentsBottomRight = new TerminalPosition(x, y);
-		docPageSize =
-				docContentsBottomRight.getRow() - docContentsTopLeft.getRow() + 1;
-		docPageWidth =
-				docContentsBottomRight.getColumn() - docContentsTopLeft.getColumn() + 1;
-	}
-
-	private void writeTextInBox(final TerminalPosition from,
-			final TerminalPosition to) throws ExperimentException {
-		int top = from.getRow();
-		int left = from.getColumn() + docPadding;
-		int bottom = to.getRow();
-
 		List<String> lines = view.nextPage();
+		writeLinesInBox(lines);
+	}
+
+	private void writeLinesInBox(final List<String> lines_) {
+		int top = 0;
+		int left = getPadding();
+		int bottom = getHeight();
+		int pageWidth = getWidth() - 2 * getPadding();
+
 		int nextLine = top + 1;
-		for (String line : lines) {
-			_mainScreen.drawHorLine(left, nextLine, docPageWidth, " ");
-			_mainScreen.drawString(left, nextLine, line);
+		for (String line : lines_) {
+			drawHorLine(left, nextLine, pageWidth + 1, " ");
+			drawString(left, nextLine, line);
 			nextLine++;
 		}
 		/* Overwrite any following lines from the previous write */
-		while (nextLine < bottom) {
-			_mainScreen.drawHorLine(left, nextLine, docPageWidth, " ");
+		while (nextLine < bottom - 1) {
+			drawHorLine(left, nextLine, pageWidth, " ");
 			nextLine++;
 		}
 
 	}
 
-	public void refresh() {
-		writeTextInBox(docBoxTopLeft, docBoxBottomRight);
+	/**
+	 * Show the previous page
+	 */
+	public void pageUp() {
+		view.pageUp();
+		List<String> lines = view.nextPage();
+		writeLinesInBox(lines);
 	}
+
+	/**
+	 * Show the next page
+	 */
+	public void pageDown() {
+		List<String> lines = view.nextPage();
+		writeLinesInBox(lines);
+	}
+
+	public void refreshPage() {
+		List<String> lines = view.samePage();
+		writeLinesInBox(lines);
+	}
+
+	@Override
+	public void refresh() {
+		refreshPage();
+	}
+
 }

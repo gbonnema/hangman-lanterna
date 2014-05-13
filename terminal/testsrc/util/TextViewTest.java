@@ -37,7 +37,9 @@ public class TextViewTest {
 
 
 
-	private int				pageSize			= 5;
+
+
+	private int				pageHeight			= 5;
 	private int				pageWidth			= 40;
 
 	/* @formatter:off */
@@ -79,7 +81,7 @@ public class TextViewTest {
 	@Before
 	public void setUp() throws Exception {
 		view = new TextView();
-		view.formatPage(text, pageSize, pageWidth);
+		view.formatPage(text, pageWidth, pageHeight);
 
 		emptyView = new TextView();
 	}
@@ -122,7 +124,7 @@ public class TextViewTest {
 		assertEquals(expected, actual);
 
 		/* Now add only newlines and test again */
-		emptyView.formatPage(onlyLines, pageSize, pageWidth);
+		emptyView.formatPage(onlyLines, pageWidth, pageHeight);
 		actual = emptyView.nextPage();
 		assertEquals(expected, actual);
 	}
@@ -141,7 +143,7 @@ public class TextViewTest {
 		expected.add(";;;;;;;");
 
 		/* add newlines + punctuation and test again */
-		emptyView.formatPage(linesAndPunct, pageSize, pageWidth);
+		emptyView.formatPage(linesAndPunct, pageWidth, pageHeight);
 		List<String> actual = emptyView.nextPage();
 		assertEquals(expected, actual);
 	}

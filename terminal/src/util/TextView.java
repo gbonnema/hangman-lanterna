@@ -27,7 +27,7 @@ public class TextView {
 		formattedLines = new ArrayList<>();
 	}
 
-	public void formatPage(String text_, int pageSize_, int pageWidth_) {
+	public void formatPage(String text_, int pageWidth_, int pageSize_) {
 		text = text_;
 		pageSize = pageSize_;
 		formattedLines = formatLines(text, pageWidth_);
@@ -46,12 +46,20 @@ public class TextView {
 		}
 		int maxlen = Math.min(pageSize, nrLines - curline);
 		maxlen = Math.max(maxlen, 0);
+		if (maxlen == 0) {
+			return new ArrayList<>();
+		}
 		/* create a sublist */
 		List<String> lines = formattedLines.subList(curline, curline + maxlen);
 		/* The sublist is an active view, not a copy, so copy it */
 		ArrayList<String> result = new ArrayList<>(lines);
 		curline = curline + maxlen;
 		return result;
+	}
+
+	public List<String> samePage() {
+		curline = curline <= pageSize ? 0 : curline - pageSize;
+		return nextPage();
 	}
 
 	/**

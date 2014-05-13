@@ -5,7 +5,7 @@ package screen;
 
 import util.ExperimentException;
 
-import com.googlecode.lanterna.screen.ScreenCharacterStyle;
+import com.googlecode.lanterna.screen.ScreenWriter;
 import com.googlecode.lanterna.terminal.TerminalPosition;
 
 /**
@@ -74,20 +74,9 @@ public interface TextDraw {
 			final int len) throws ExperimentException;
 
 	/**
-	 * Draws a string on the screen at a particular position
 	 * 
-	 * @param x
-	 *          0-indexed column number of where to put the first character in the
-	 *          string
-	 * @param y
-	 *          0-indexed row number of where to put the first character in the
-	 *          string
-	 * @param string
-	 *          Text to put on the screen
-	 * @param styles
-	 *          Additional styles to apply to the text
+	 * @return the absolute screen writer.
 	 */
-	public void drawString(final int x, final int y, final String string,
-			final ScreenCharacterStyle... styles);
+	public ScreenWriter getAbsScreenWriter();
 
 }
