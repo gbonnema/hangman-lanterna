@@ -24,6 +24,8 @@ import com.googlecode.lanterna.terminal.TerminalPosition;
  */
 public class MainScreen implements TextDraw {
 
+	final String							_version	= "0.2";
+
 	final int									_padding	= 2;
 
 	private boolean						_keepRunning;
@@ -96,7 +98,7 @@ public class MainScreen implements TextDraw {
 		drawHorDashLine(promptLine - 1);
 		drawPrompt();
 
-		drawScreenSizeOnScreen();
+		drawInfoLine();
 
 		_screen.setCursorPosition(prompt);
 
@@ -124,6 +126,7 @@ public class MainScreen implements TextDraw {
 		TerminalPosition topLeft = new TerminalPosition(left, y);
 
 		int width = _screenWidth - _padding - left;
+		width = width > 80 ? 80 : width;
 		int height = (int) ((_screenHeight - _padding - y) * 0.6);
 		TerminalPosition panelSize = new TerminalPosition(width, height);
 
@@ -163,15 +166,19 @@ public class MainScreen implements TextDraw {
 	 * 
 	 * @throws ExperimentException
 	 */
-	private void drawScreenSizeOnScreen() {
+	private void drawInfoLine() {
 		int width = terminal.getTerminalSize().getColumns();
 		int height = terminal.getTerminalSize().getRows();
 
-		String sizeStr = width + " x " + height;
+		StringBuilder sb = new StringBuilder();
 
-		int x = width - sizeStr.length() - 1;
+		sb.append("(version ").append(_version).append(")");
+		sb.append(" - ");
+		sb.append(width + " x " + height);
+
+		int x = width - sb.length() - 1;
 		int y = promptLine;
-		_screenWriter.drawString(x, y, sizeStr);
+		_screenWriter.drawString(x, y, sb.toString());
 	}
 
 	/**

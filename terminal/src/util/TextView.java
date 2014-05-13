@@ -31,7 +31,6 @@ public class TextView {
 		text = text_;
 		pageSize = pageSize_;
 		formattedLines = formatLines(text, pageWidth_);
-		nrLines = formattedLines.size();
 		curline = 0;
 	}
 
@@ -41,13 +40,25 @@ public class TextView {
 	 * @return List<String> containing the requested lines. The list is a copy.
 	 */
 	public List<String> nextPage() {
-		if (curline < 0) {
-			return new ArrayList<>();
+		int textLength = formattedLines.size();
+		if (pageSize < textLength) {
+			if (curline > textLength - pageSize) {
+				curline = textLength - pageSize;
+			}
+		} else {
+			curline = 0;
 		}
-		int maxlen = Math.min(pageSize, nrLines - curline);
+		if (curline < 0) {
+			List<String> list = new ArrayList<>();
+			list.add("Negative current line?");
+			return list;
+		}
+		int maxlen = Math.min(pageSize, formattedLines.size() - curline);
 		maxlen = Math.max(maxlen, 0);
 		if (maxlen == 0) {
-			return new ArrayList<>();
+			List<String> list = new ArrayList<>();
+			list.add("No more lines.");
+			return list;
 		}
 		/* create a sublist */
 		List<String> lines = formattedLines.subList(curline, curline + maxlen);
