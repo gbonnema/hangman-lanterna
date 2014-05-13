@@ -24,23 +24,23 @@ import com.googlecode.lanterna.terminal.TerminalPosition;
  */
 public class MainScreen implements TextDraw {
 
-	final int									padding	= 2;
+	final int									_padding	= 2;
 
 	private boolean						_keepRunning;
 
 	Screen										_screen;
 	private Terminal					terminal;
 	ScreenWriter							_screenWriter;
-	int												screenWidth;
-	int												screenHeight;
+	int												_screenWidth;
+	int												_screenHeight;
 
-	private DocPanel					docPanel;
+	private DocPanel					_docPanel;
 
 	/*
 	 * Prompt fields
 	 */
 	private int								promptLine;
-	int												centerline;
+	int												_centerline;
 	private String						promptChar;
 	private TerminalPosition	prompt;
 	private TerminalPosition	promptStr;
@@ -52,8 +52,16 @@ public class MainScreen implements TextDraw {
 	 *           when something is wrong.
 	 */
 	public MainScreen() throws ExperimentException {
+
+		_screen = TerminalFacade.createScreen();
+		_screen.startScreen();
+
 		initializeScreen();
+
+		_docPanel = new DocPanel(this);
+
 		rebuildScreen();
+
 		_screen.refresh();
 	}
 
@@ -62,89 +70,48 @@ public class MainScreen implements TextDraw {
 	 * initial creation.
 	 */
 	private void initializeScreen() {
-		_screen = TerminalFacade.createScreen();
 		terminal = _screen.getTerminal();
 		_screenWriter = new ScreenWriter(_screen);
 		_screenWriter.setForegroundColor(Terminal.Color.BLUE);
 		_screenWriter.setBackgroundColor(Terminal.Color.WHITE);
 
-		_screen.startScreen();
-
-	}
-
-	/**
-	 * Runs the application until the user presses Escape
-	 * 
-	 * @throws ExperimentException
-	 *           for failed readInput.
-	 */
-	public void run() throws ExperimentException {
-		_keepRunning = true;
-		while (_keepRunning) {
-			Key key = _screen.readInput();
-			if (key != null) {
-				handleInput(key);
-			}
-			if (!_keepRunning) {
-				break;
-			}
-
-			if (_screen.resizePending()) {
-				rebuildScreen();
-				rebuildDocPanel();
-				docPanel.refresh();
-				_screen.refresh();
-			}
-		}
-
-		_screen.stopScreen();
-
-	}
-
-	private void handleInput(Key key) throws ExperimentException {
-		Kind kind = key.getKind();
-		if (kind == Key.Kind.Escape) {
-			_keepRunning = false;
-		} else if (kind == Key.Kind.PageDown) {
-			docPanel.pageDown();
-			_screen.refresh();
-		} else if (kind == Key.Kind.PageUp) {
-			docPanel.pageUp();
-			_screen.refresh();
-		} else if (kind == Key.Kind.F4 && key.isAltPressed()) {
-			_keepRunning = false;
-		}
 	}
 
 	public void stopScreen() {
 		_screen.stopScreen();
 	}
 
+	/**
+	 * Rebuild this screen from scratch. This often occurs as response to an event
+	 * of some change, like a resize. It also the initial build.
+	 * 
+	 * @throws ExperimentException
+	 */
 	private void rebuildScreen() throws ExperimentException {
 
-		initializeTerminalSize();
+		initTerminalSize();
 		initializePrompt();
 
 		wipeScreen();
 		drawHorDashLine(promptLine - 1);
 		drawPrompt();
 
-		drawScreenSize();
+		drawScreenSizeOnScreen();
 
 		_screen.setCursorPosition(prompt);
-		_screen.refresh();
 
-		docPanel = new DocPanel(this);
 		rebuildDocPanel();
+
+		_screen.refresh();
 	}
 
 	/**
-	 * 
+	 * Initialize the terminal sizes.
 	 */
-	private void initializeTerminalSize() {
-		screenWidth = _screen.getTerminalSize().getColumns();
-		screenHeight = _screen.getTerminalSize().getRows();
-		centerline = screenWidth / 2;
+	private void initTerminalSize() {
+		_screenWidth = _screen.getTerminalSize().getColumns();
+		_screenHeight = _screen.getTerminalSize().getRows();
+		_centerline = _screenWidth / 2;
 	}
 
 	/**
@@ -152,16 +119,16 @@ public class MainScreen implements TextDraw {
 	 */
 	private void rebuildDocPanel() {
 
-		int x = centerline + padding;
-		int y = padding;
-		TerminalPosition topLeft = new TerminalPosition(x, y);
+		int left = _centerline + _padding;
+		int y = _padding;
+		TerminalPosition topLeft = new TerminalPosition(left, y);
 
-		int width = screenWidth - padding - x;
-		int height = (int) ((screenHeight - padding - y) * 0.6);
+		int width = _screenWidth - _padding - left;
+		int height = (int) ((_screenHeight - _padding - y) * 0.6);
 		TerminalPosition panelSize = new TerminalPosition(width, height);
 
-		docPanel.resetPanel(topLeft, panelSize);
-		docPanel.refresh();
+		_docPanel.resetPanel(topLeft, panelSize);
+		_docPanel.refresh();
 	}
 
 	/**
@@ -192,13 +159,62 @@ public class MainScreen implements TextDraw {
 				ScreenCharacterStyle.Bold);
 	}
 
-	private void drawScreenSize() throws ExperimentException {
+	/**
+	 * 
+	 * @throws ExperimentException
+	 */
+	private void drawScreenSizeOnScreen() {
 		int width = terminal.getTerminalSize().getColumns();
 		int height = terminal.getTerminalSize().getRows();
+
 		String sizeStr = width + " x " + height;
+
 		int x = width - sizeStr.length() - 1;
 		int y = promptLine;
 		_screenWriter.drawString(x, y, sizeStr);
+	}
+
+	/**
+	 * Runs the application until the user presses Escape
+	 * 
+	 * @throws ExperimentException
+	 *           for failed readInput.
+	 */
+	public void run() throws ExperimentException {
+
+		_keepRunning = true;
+		while (_keepRunning) {
+			Key key = _screen.readInput();
+			if (key != null) {
+				handleInput(key);
+			}
+			if (!_keepRunning) {
+				break;
+			}
+			if (_screen.resizePending()) {
+				_screen.refresh();
+				rebuildScreen();
+				_screen.refresh();
+			}
+		}
+
+		_screen.stopScreen();
+
+	}
+
+	private void handleInput(Key key) throws ExperimentException {
+		Kind kind = key.getKind();
+		if (kind == Key.Kind.Escape) {
+			_keepRunning = false;
+		} else if (kind == Key.Kind.PageDown) {
+			_docPanel.pageDown();
+			_screen.refresh();
+		} else if (kind == Key.Kind.PageUp) {
+			_docPanel.pageUp();
+			_screen.refresh();
+		} else if (kind == Key.Kind.F4 && key.isAltPressed()) {
+			_keepRunning = false;
+		}
 	}
 
 	@Override

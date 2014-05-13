@@ -20,6 +20,7 @@ public class DocPanel extends AbstractPanel {
 
 	private TextView					view;
 	private TerminalPosition	origin;
+	private String						_docText;
 
 	/**
 	 * Constructor. Calls AbstractPanel constructor.
@@ -34,28 +35,27 @@ public class DocPanel extends AbstractPanel {
 	public DocPanel(TextDraw mainScreen) {
 		super(mainScreen);
 		origin = new TerminalPosition(0, 0);
-		createLongDocPanel();
+		/* get the text */
+		HangmanDoc docText = new HangmanDoc();
+		_docText = docText.getLongDescription();
+		/* show text */
+		recreateLongDocPanel();
 	}
 
 	/**
 	 * creates the long description panel.
 	 */
-	void createLongDocPanel() {
-
-		/* Calculate start and end of the doc box */
-		// calcDocBox();
+	void recreateLongDocPanel() {
 
 		/* set hangman doc area */
 		TerminalPosition bottomRight =
 				new TerminalPosition(getWidth() - 1, getHeight() - 1);
 		drawBox(origin, bottomRight);
 
-		/* get the text */
-		HangmanDoc docText = new HangmanDoc();
-		String text = docText.getLongDescription();
+		/* Prepare and format the text */
 		view = new TextView();
-		view.formatPage(text, getWidth() - 2 * getPadding(), getHeight() - 2);
-		/* Write the docs */
+		view.formatPage(_docText, getWidth() - 2 * getPadding(), getHeight() - 2);
+		/* Show the docText in pages */
 		List<String> lines = view.nextPage();
 		writeLinesInBox(lines);
 	}
@@ -66,13 +66,14 @@ public class DocPanel extends AbstractPanel {
 		int bottom = getHeight();
 		int pageWidth = getWidth() - 2 * getPadding();
 
+		/* Write the lines of text on a cleaned line */
 		int nextLine = top + 1;
 		for (String line : lines_) {
-			drawHorLine(left, nextLine, pageWidth + 1, " ");
+			drawHorLine(left, nextLine, pageWidth, " ");
 			drawString(left, nextLine, line);
 			nextLine++;
 		}
-		/* Overwrite any following lines from the previous write */
+		/* Clean any following lines from the previous write */
 		while (nextLine < bottom - 1) {
 			drawHorLine(left, nextLine, pageWidth, " ");
 			nextLine++;
@@ -104,7 +105,7 @@ public class DocPanel extends AbstractPanel {
 
 	@Override
 	public void refresh() {
-		refreshPage();
+		recreateLongDocPanel();
 	}
 
 }

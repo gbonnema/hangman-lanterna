@@ -22,8 +22,8 @@ public abstract class AbstractPanel {
 
 	private TextDraw								_mainScreen;
 	private ScreenWriter						_absScreenWriter;
-	private TerminalPosition				_topLeftCorner;
-	private TerminalPosition				_panelSize;
+	private TerminalPosition				_absTopLeftCorner;
+	private TerminalPosition				_absPanelSize;
 	private int											_absLeft, _absRight, _absTop, _absBottom;
 	private int											_height, _width;
 
@@ -48,12 +48,12 @@ public abstract class AbstractPanel {
 	 * right, top and bottom.
 	 */
 	private void calcBorders() {
-		_absLeft = _topLeftCorner.getColumn();
-		_absRight = _topLeftCorner.getColumn() + _panelSize.getColumn() - 1;
-		_absTop = _topLeftCorner.getRow();
-		_absBottom = _topLeftCorner.getRow() + _panelSize.getRow() - 1;
-		_height = _panelSize.getRow();
-		_width = _panelSize.getColumn();
+		_absLeft = _absTopLeftCorner.getColumn();
+		_absRight = _absTopLeftCorner.getColumn() + _absPanelSize.getColumn() - 1;
+		_absTop = _absTopLeftCorner.getRow();
+		_absBottom = _absTopLeftCorner.getRow() + _absPanelSize.getRow() - 1;
+		_height = _absPanelSize.getRow();
+		_width = _absPanelSize.getColumn();
 	}
 
 	protected void drawHorDashLine(int line) {
@@ -81,7 +81,7 @@ public abstract class AbstractPanel {
 		int right = to.getColumn();
 		int top = from.getRow();
 		int bottom = to.getRow();
-		int width = right - left + 1;
+		int width = right - left;
 		Utils.checkArg(width >= 5, "minimum width box = 5. specified: " + width
 				+ "\n" + "\n" + "from = " + from + ", to = " + to + "\n");
 
@@ -95,9 +95,8 @@ public abstract class AbstractPanel {
 		int height = bottom - top + 1;
 		int innerheight = height - 2;
 		for (int i = 0; i < innerheight; i++) {
-			int x = left;
 			int y = top + 1 + i;
-			drawString(x, y, midStr);
+			drawString(left, y, midStr);
 		}
 	}
 
@@ -341,8 +340,9 @@ public abstract class AbstractPanel {
 	 *          the size
 	 */
 	public void resetPanel(TerminalPosition topleftCorner, TerminalPosition size) {
-		_topLeftCorner = topleftCorner;
-		_panelSize = size;
+		_absTopLeftCorner = topleftCorner;
+		_absPanelSize = size;
+		calcBorders();
 	}
 
 	/**
