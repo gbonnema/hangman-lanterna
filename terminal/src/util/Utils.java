@@ -17,11 +17,11 @@ public final class Utils {
 	 * Check the condition is true, if not throw an ExperimentException.
 	 * 
 	 * @param cond
-	 *            The condition
+	 *          The condition
 	 * @param message
-	 *            The error message.
+	 *          The error message.
 	 * @throws ExperimentException
-	 *             The exception to be thrown if the condition is false.
+	 *           The exception to be thrown if the condition is false.
 	 */
 	public static void check(boolean cond, String message)
 			throws ExperimentException {
@@ -31,14 +31,31 @@ public final class Utils {
 	}
 
 	/**
+	 * Check the condition is true, if not throw an IllegalArgumentException. This
+	 * is a runtime error that does not need to be declared.
+	 * 
+	 * @param cond
+	 *          The condition
+	 * @param message
+	 *          The error message.
+	 * @throws IllegalArgumentException
+	 *           The exception to be thrown if the condition is false.
+	 */
+	public static void checkArg(boolean cond, String message) {
+		if (!cond) {
+			throw new IllegalArgumentException(message);
+		}
+	}
+
+	/**
 	 * Check the variable is not null, otherwise an ExperimentException
 	 * 
 	 * @param cond
-	 *            The condition
+	 *          The condition
 	 * @param varName
-	 *            The variable name
+	 *          The variable name
 	 * @throws ExperimentException
-	 *             The exception
+	 *           The exception
 	 */
 	public static void checkNotNull(Object obj, String varName)
 			throws ExperimentException {

@@ -23,9 +23,9 @@ import com.googlecode.lanterna.terminal.TerminalPosition;
  * @author gbonnema
  * 
  */
-public class MainScreen {
+public class MainScreen implements TextDraw {
 
-	final int									padding		= 2;
+	final int									padding	= 2;
 
 	private boolean						keepRunning;
 
@@ -34,7 +34,7 @@ public class MainScreen {
 	ScreenWriter							screenWriter;
 	int												screenWidth;
 
-	private DocPanel					docPanel	= new DocPanel();
+	private DocPanel					docPanel;
 
 	/*
 	 * Prompt fields
@@ -69,6 +69,8 @@ public class MainScreen {
 		screenWriter.setBackgroundColor(Terminal.Color.WHITE);
 
 		screen.startScreen();
+
+		docPanel = new DocPanel(this);
 	}
 
 	/**
@@ -127,7 +129,7 @@ public class MainScreen {
 		drawPrompt();
 
 		drawScreenSize();
-		docPanel.createLongDocPanel(this);
+		docPanel.createLongDocPanel(this, _panelId);
 
 		screen.setCursorPosition(prompt);
 		screen.refresh();
@@ -178,8 +180,15 @@ public class MainScreen {
 		screenWriter.drawString(x, y, sizeStr);
 	}
 
-	private void drawHorDashLine(int line) throws ExperimentException {
-		drawHorLine(line, "-");
+	@Override
+	public void drawHorDashLine(int line) {
+		try {
+			drawHorLine(line, "-");
+		} catch (ExperimentException ex) {
+			throw new RuntimeException(
+					"Internal error. This should never happen here.\nError: "
+							+ ex.getMessage());
+		}
 	}
 
 	private void drawHorLine(int line, String ch) throws ExperimentException {
@@ -187,13 +196,15 @@ public class MainScreen {
 		screenWriter.drawString(0, line, horLine);
 	}
 
-	void drawHorLine(int line, String ch, int start, int width)
+	@Override
+	public void drawHorLine(int col, int line, int width, String ch)
 			throws ExperimentException {
 		String horLine = createHorLine(ch, width);
-		screenWriter.drawString(start, line, horLine);
+		screenWriter.drawString(col, line, horLine);
 	}
 
-	void drawBox(final TerminalPosition from, final TerminalPosition to)
+	@Override
+	public void drawBox(final TerminalPosition from, final TerminalPosition to)
 			throws ExperimentException {
 
 		String topStr, bottomStr, midStr;
@@ -230,6 +241,8 @@ public class MainScreen {
 	 * Builds a line start with one startchar en ending with an endchar, in the
 	 * middle a midchar. Returns the result.
 	 * 
+	 * You can use this to create a box, or just a line
+	 * 
 	 * @param startchar
 	 *          The first character of the line.
 	 * @param endchar
@@ -240,9 +253,10 @@ public class MainScreen {
 	 *          The length of the line.
 	 * @return the resulting line as a String.
 	 */
-	private String fillLine(final char startchar, final char endchar,
-			final char midchar, final int len) throws ExperimentException {
-		Utils.check(len > 2, "wrong length for filling a line.");
+	@Override
+	public String fillLine(final char startchar, final char endchar,
+			final char midchar, final int len) {
+		Utils.checkArg(len > 2, "wrong length for filling a line.");
 		StringBuilder result = new StringBuilder();
 		result.append(startchar);
 		for (int i = 1; i < len; i++) {
@@ -252,19 +266,43 @@ public class MainScreen {
 		return result.toString();
 	}
 
-	private String createHorLine(String ch) throws ExperimentException {
+	private String createHorLine(String ch) {
 		int length = screen.getTerminalSize().getColumns();
 		return createHorLine(ch, length);
 	}
 
-	private String createHorLine(String ch, int length)
-			throws ExperimentException {
-		Utils.check(ch.length() == 1, "String should contain 1 character: " + ch);
+	private String createHorLine(String ch, int length) {
+		Utils.checkArg(ch.length() == 1, "String must have 1 character: " + ch);
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < length; i++) {
 			sb.append(ch);
 		}
 		return sb.toString();
+	}
+
+	/**
+	 * Draws a string on the screen at a particular position
+	 * 
+	 * @param x
+	 *          0-indexed column number of where to put the first character in the
+	 *          string
+	 * @param y
+	 *          0-indexed row number of where to put the first character in the
+	 *          string
+	 * @param string_
+	 *          Text to put on the screen
+	 * @param styles_
+	 *          Additional styles to apply to the text
+	 */
+	@Override
+	public void drawString(final int x_, final int y_, final String string_,
+			final ScreenCharacterStyle... styles_) {
+		int x, y;
+		x = x_;
+		y = y_;
+		String string = string_;
+		// TODO: translate x and y to particular area
+		screenWriter.drawString(x, y, string, styles_);
 	}
 
 }

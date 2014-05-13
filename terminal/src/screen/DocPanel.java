@@ -17,37 +17,41 @@ import com.googlecode.lanterna.terminal.TerminalPosition;
  */
 public class DocPanel {
 
-	public final int					docPadding	= 2;
+	private final int					docPadding	= 2;
 
-	public TextView						view;
-	public TerminalPosition		docBoxTopLeft;
-	public TerminalPosition		docBoxBottomRight;
-	public TerminalPosition		docContentsTopLeft;
-	public TerminalPosition		docContentsBottomRight;
-	public int								docPageSize;
-	public int								docPageWidth;
+	private TextDraw					_mainScreen;
 
 	private TerminalPosition	panelSize;
+
+	private TextView					view;
+	private TerminalPosition	docBoxTopLeft;
+	private TerminalPosition	docBoxBottomRight;
+	private TerminalPosition	docContentsTopLeft;
+	private TerminalPosition	docContentsBottomRight;
+	private int								docPageSize;
+	private int								docPageWidth;
 
 	/**
 	 * Constructor.
 	 */
-	public DocPanel(TerminalPosition panelSize) {
-		this.panelSize = panelSize;
+	public DocPanel(TextDraw mainScreen_, int panelId_)
+			throws ExperimentException {
+		_mainScreen = mainScreen_;
+		createLongDocPanel();
 	}
 
 	/**
-	 * @param mainScreen
+	 * @param _mainScreen
 	 *          TODO
 	 * @throws ExperimentException
 	 */
-	void createLongDocPanel(MainScreen mainScreen) throws ExperimentException {
+	void createLongDocPanel() throws ExperimentException {
 
 		/* Calculate start and end of the doc box */
-		mainScreen.calcDocBox();
+		calcDocBox();
 
 		/* set hangman doc area */
-		mainScreen.drawBox(docBoxTopLeft, docBoxBottomRight);
+		_mainScreen.drawBox(docBoxTopLeft, docBoxBottomRight);
 
 		/* get the text */
 		HangmanDoc docText = new HangmanDoc();
@@ -55,14 +59,14 @@ public class DocPanel {
 		view = new TextView();
 		view.formatPage(text, docPageSize, docPageWidth);
 		/* Write the docs */
-		mainScreen.writeTextInBox(view, docBoxTopLeft, docBoxBottomRight);
+		writeTextInBox(docBoxTopLeft, docBoxBottomRight);
 	}
 
-	void calcDocBox(MainScreen mainScreen) {
+	void calcDocBox() {
 		int x;
 		int y;
 		// calculate top lines
-		x = mainScreen.centerline + mainScreen.padding;
+		x = _mainScreen.centerline + _mainScreen.padding;
 		y = 2;
 		docBoxTopLeft = new TerminalPosition(x, y);
 		x = x + docPadding;
@@ -70,8 +74,8 @@ public class DocPanel {
 		docContentsTopLeft = new TerminalPosition(x, y);
 
 		// calculate bottom lines
-		x = mainScreen.screenWidth - mainScreen.padding;
-		y = (int) (mainScreen.screen.getTerminalSize().getRows() * 0.6);
+		x = _mainScreen.screenWidth - _mainScreen.padding;
+		y = (int) (_mainScreen.screen.getTerminalSize().getRows() * 0.6);
 
 		docBoxBottomRight = new TerminalPosition(x, y);
 		x = x - docPadding;
@@ -83,9 +87,8 @@ public class DocPanel {
 				docContentsBottomRight.getColumn() - docContentsTopLeft.getColumn() + 1;
 	}
 
-	void writeTextInBox(MainScreen mainScreen, final TextView view,
-			final TerminalPosition from, final TerminalPosition to)
-			throws ExperimentException {
+	private void writeTextInBox(final TerminalPosition from,
+			final TerminalPosition to) throws ExperimentException {
 		int top = from.getRow();
 		int left = from.getColumn() + docPadding;
 		int bottom = to.getRow();
@@ -93,15 +96,19 @@ public class DocPanel {
 		List<String> lines = view.nextPage();
 		int nextLine = top + 1;
 		for (String line : lines) {
-			mainScreen.drawHorLine(nextLine, " ", left, docPageWidth);
-			mainScreen.screenWriter.drawString(left, nextLine, line);
+			_mainScreen.drawHorLine(left, nextLine, docPageWidth, " ");
+			_mainScreen.drawString(left, nextLine, line);
 			nextLine++;
 		}
 		/* Overwrite any following lines from the previous write */
 		while (nextLine < bottom) {
-			mainScreen.drawHorLine(nextLine, " ", left, docPageWidth);
+			_mainScreen.drawHorLine(left, nextLine, docPageWidth, " ");
 			nextLine++;
 		}
 
+	}
+
+	public void refresh() {
+		writeTextInBox(docBoxTopLeft, docBoxBottomRight);
 	}
 }
