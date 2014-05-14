@@ -3,10 +3,11 @@
  */
 package screen;
 
-import hangman.HangFig;
 import hangman.Hangman;
 
 import java.io.IOException;
+import java.util.Observable;
+import java.util.Observer;
 
 import util.ExperimentException;
 import util.Utils;
@@ -19,9 +20,7 @@ import com.googlecode.lanterna.terminal.TerminalPosition;
  * @author gbonnema
  * 
  */
-public class GamePanel extends AbstractPanel {
-
-	private HangFig[]		_hangFig;
+public class GamePanel extends AbstractPanel implements Observer {
 
 	private Vocab				_vocab;
 	private Hangman			_hangman;
@@ -47,22 +46,30 @@ public class GamePanel extends AbstractPanel {
 	public void newGame() {
 		_entry = _vocab.getRandomEntry();
 		_hangman = new Hangman(_entry._wordNL);
-		_hangFig = _hangman.getHangFig();
 		_guessArray = _hangman.refreshGuess();
 		refreshEntry();
 	}
 
-	public char[] newGuess(String charStr) {
+	public void newGuess(String charStr) {
 		Utils.checkArg(_hangman != null, "Not gaming, yet.");
 		char[] chArr = _hangman.guess(charStr);
 		chArr = _hangman.updateGuess(chArr);
-		return chArr;
+		refreshEntry();
 	}
 
 	private void refreshEntry() {
-		TerminalPosition coord = new TerminalPosition(0, 0);
-		String entryStr = new String(_guessArray);
-		drawString(coord.getColumn(), coord.getRow(), entryStr);
+		TerminalPosition coord = new TerminalPosition(getPadding(), getPadding());
+		String spacedGuessArray = disperse(_guessArray);
+		drawString(coord.getColumn(), coord.getRow(), spacedGuessArray);
+	}
+
+	private String disperse(char[] chArr) {
+		StringBuilder result = new StringBuilder();
+		result.append(chArr[0]);
+		for (int i = 1; i < chArr.length; i++) {
+			result.append(" ").append(chArr[i]);
+		}
+		return result.toString();
 	}
 
 	/*
@@ -73,6 +80,17 @@ public class GamePanel extends AbstractPanel {
 	@Override
 	public void refresh() {
 		refreshEntry();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.util.Observer#update(java.util.Observable, java.lang.Object)
+	 */
+	@Override
+	public void update(Observable o, Object arg) {
+		// TODO Auto-generated method stub
+
 	}
 
 }

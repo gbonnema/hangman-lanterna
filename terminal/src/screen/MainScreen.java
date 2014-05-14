@@ -210,6 +210,7 @@ public class MainScreen implements TextDraw {
 	public void run() throws ExperimentException {
 
 		_keepRunning = true;
+		_gamePanel.newGame();
 		while (_keepRunning) {
 			Key key = _screen.readInput();
 			if (key != null) {
@@ -241,19 +242,21 @@ public class MainScreen implements TextDraw {
 			_screen.refresh();
 		} else if (kind == Key.Kind.F4 && key.isAltPressed()) {
 			_keepRunning = false;
+		} else if (kind == Key.Kind.F2) {
+			// _gamePanel.showWord();
+			// _screen.refresh();
 		} else {
-			handleInputGame(Key key);
+			handleGameInput(key);
+			_screen.refresh();
 		}
 	}
 
-	private void handleInputGame(Key key) {
+	private void handleGameInput(Key key) {
 		Kind kind = key.getKind();
 		if (kind == Key.Kind.NormalKey) {
 			char ch = key.getCharacter();
 			String charStr = Character.toString(ch);
-			char[] guessArr = _gamePanel.newGuess(charStr);
-			// TODO: finish. Dont receive char[], but put it onscreen.
-			// TODO: add start of game somewhere
+			_gamePanel.newGuess(charStr);
 		}
 	}
 
