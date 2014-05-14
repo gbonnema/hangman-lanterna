@@ -18,26 +18,25 @@ import util.Utils;
  */
 public class Hangman {
 
-	private String hideWord;
-	private char[] guessCharArray;
-	private char[] initialGuessCharArray;
-	private int phase;
+	private String			hideWord;
+	private char[]			guessCharArray;
+	private char[]			initialGuessCharArray;
+	private int					phase;
 
-	private HangmanDoc doc = new HangmanDoc();
+	private HangmanDoc	doc	= new HangmanDoc();
 
 	/**
 	 * Constructor for hangman with a specified word.
 	 * 
 	 * @param word
-	 *            the specified word
+	 *          the specified word
 	 * @throws ExperimentException
-	 *             if the word is empty
+	 *           if the word is empty
 	 */
 	public Hangman(String word) throws ExperimentException {
 		Utils.check(word.length() > 0, "Empty word in hangman");
 		phase = 0;
 		hideWord = word;
-		createHangman();
 		int nrCharsToGuess = hideWord.length();
 		guessCharArray = new char[nrCharsToGuess];
 		initialGuessCharArray = new char[nrCharsToGuess];
@@ -45,11 +44,6 @@ public class Hangman {
 			guessCharArray[i] = '_';
 			initialGuessCharArray[i] = '_';
 		}
-	}
-
-	/* TODO What should I do here? */
-	private void createHangman() {
-		// to do
 	}
 
 	/**
@@ -66,14 +60,13 @@ public class Hangman {
 	 * positions that it occurs or null if none is found.
 	 * 
 	 * @param charStr
-	 *            the specified character
+	 *          the specified character
 	 * @return an array containing the positions of the hidden word with the
 	 *         specified character where it is in the word and space where it is
 	 *         not. If the character was not found, null is returned.
 	 */
 	public char[] guess(String charStr) throws ExperimentException {
-		Utils.check(charStr.length() == 1,
-				"Error: charStr should be 1 character.");
+		Utils.check(charStr.length() == 1, "Error: charStr should be 1 character.");
 		char ch = charStr.charAt(0);
 		char[] result = new char[hideWord.length()];
 		for (int i = 0; i < hideWord.length(); i++) {
@@ -87,11 +80,11 @@ public class Hangman {
 	}
 
 	/**
-	 * This methode unites the result from guess() with the guessed characters
-	 * up until this point.
+	 * This methode unites the result from guess() with the guessed characters up
+	 * until this point.
 	 * 
 	 * @param chArr
-	 *            The guess array returned from guess();
+	 *          The guess array returned from guess();
 	 * @return the guess character array
 	 */
 	public char[] updateGuess(char[] chArr) {
@@ -115,8 +108,8 @@ public class Hangman {
 	 * @return the partially filled hangman figure depending on the phase we are
 	 *         in.
 	 * @throws ExperimentException
-	 *             if the phase is invalid (internal error). This should never
-	 *             happen.
+	 *           if the phase is invalid (internal error). This should never
+	 *           happen.
 	 */
 	public HangFig[] getHangFig() throws ExperimentException {
 		// Sanity check

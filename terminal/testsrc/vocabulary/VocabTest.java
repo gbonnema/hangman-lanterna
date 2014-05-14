@@ -19,11 +19,14 @@ import util.ExperimentException;
  */
 public class VocabTest {
 
+	private Vocab	_vocab;
+
 	/**
 	 * @throws java.lang.Exception
 	 */
 	@Before
 	public void setUp() throws Exception {
+		_vocab = new Vocab("nederlands.csv");
 	}
 
 	/**
@@ -37,18 +40,50 @@ public class VocabTest {
 	 * Test method for {@link vocabulary.Vocab#Vocab(java.lang.String)}.
 	 */
 	@Test
-	public void testVocab() throws Exception {
-		Vocab vocab = new Vocab("nederlands.csv");
+	public void testVocab1() throws Exception {
 
-		String expectedPrefix =
-				"/home/gbonnema/projects/ws"
-						+ "/terminal/nederlands.csv: [een meer, een broodje";
-		String expectedSuffix = "voornaam]";
-		String actual = vocab.toString();
-		assertTrue(actual.startsWith(expectedPrefix));
-		int endOffset = actual.length() - expectedSuffix.length();
-		assertEquals(expectedSuffix, actual.substring(endOffset));
-		// assertTrue(actual.endsWith(expectedSuffix));
+		String expectedNL1 = "een meer";
+		String expectedEN1 = "a lake";
+
+		String actualNL1 = _vocab.getNL(0);
+		String actualEN1 = _vocab.getEN(0);
+
+		assertEquals(expectedNL1, actualNL1);
+		assertEquals(expectedEN1, actualEN1);
+	}
+
+	/**
+	 * Test method for {@link vocabulary.Vocab#Vocab(java.lang.String)}.
+	 */
+	@Test
+	public void testVocab2() throws Exception {
+
+		String expectedNL2 = "een broodje";
+		String expectedEN2 = "a roll";
+
+		String actualNL2 = _vocab.getNL(1);
+		String actualEN2 = _vocab.getEN(1);
+
+		assertEquals(expectedNL2, actualNL2);
+		assertEquals(expectedEN2, actualEN2);
+	}
+
+	/**
+	 * Test method for {@link vocabulary.Vocab#Vocab(java.lang.String)}.
+	 */
+	@Test
+	public void testVocabLast() throws Exception {
+
+		int size = _vocab.getSize();
+
+		String expectedNLLast = "je voornaam";
+		String expectedENLast = "your first name";
+
+		String actualNLLast = _vocab.getNL(size - 1);
+		String actualENLast = _vocab.getEN(size - 1);
+
+		assertEquals(expectedNLLast, actualNLLast);
+		assertEquals(expectedENLast, actualENLast);
 	}
 
 	/**

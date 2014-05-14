@@ -19,21 +19,20 @@ import util.ExperimentException;
  */
 public class HangmanTest {
 
-	private String emptyWord = "";
-	private String guess1EmptyWord = "";
-	private String word = "abcdb";
-	private String guess0toolong = "too long";
-	private String guess1 = "x";
-	private String guess2 = "d";
-	private String guess3 = "b";
+	private String	emptyWord			= "";
+	private String	word					= "abcdb";
+	private String	guess0toolong	= "too long";
+	private String	guess1				= "x";
+	private String	guess2				= "d";
+	private String	guess3				= "b";
 	/* ========================== "abcdb"; */
-	private String expectGuess1 = "_____";
-	private String expectGuess2 = "___d_";
-	private String expectGuess3 = "_b__b";
-	private String expectResult1 = "_____";
-	private String expectResult2 = "___d_";
-	private String expectResult3 = "_b_db";
-	private Hangman hangman;
+	private String	expectGuess1	= "_____";
+	private String	expectGuess2	= "___d_";
+	private String	expectGuess3	= "_b__b";
+	private String	expectResult1	= "_____";
+	private String	expectResult2	= "___d_";
+	private String	expectResult3	= "_b_db";
+	private Hangman	hangman;
 
 	/**
 	 * @throws java.lang.Exception
