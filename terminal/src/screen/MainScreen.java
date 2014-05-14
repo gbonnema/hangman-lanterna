@@ -37,6 +37,7 @@ public class MainScreen implements TextDraw {
 	int												_screenHeight;
 
 	private DocPanel					_docPanel;
+	private GamePanel					_gamePanel;
 
 	/*
 	 * Prompt fields
@@ -61,6 +62,7 @@ public class MainScreen implements TextDraw {
 		initializeScreen();
 
 		_docPanel = new DocPanel(this);
+		_gamePanel = new GamePanel(this);
 
 		rebuildScreen();
 
@@ -103,6 +105,7 @@ public class MainScreen implements TextDraw {
 		_screen.setCursorPosition(prompt);
 
 		rebuildDocPanel();
+		rebuildGamePanel();
 
 		_screen.refresh();
 	}
@@ -132,6 +135,23 @@ public class MainScreen implements TextDraw {
 
 		_docPanel.resetPanel(topLeft, panelSize);
 		_docPanel.refresh();
+	}
+
+	/**
+	 * Builds the gamePanel and writes the game information to the screen.
+	 */
+	private void rebuildGamePanel() {
+		int left = _padding;
+		int y = _padding;
+		TerminalPosition topLeft = new TerminalPosition(left, y);
+
+		int width = _centerline - _padding - left;
+		int height = (int) ((_screenHeight - _padding - y) * 0.6);
+		TerminalPosition panelSize = new TerminalPosition(width, height);
+
+		_gamePanel.resetPanel(topLeft, panelSize);
+		_gamePanel.newGame();
+		_gamePanel.refresh();
 	}
 
 	/**
@@ -221,6 +241,19 @@ public class MainScreen implements TextDraw {
 			_screen.refresh();
 		} else if (kind == Key.Kind.F4 && key.isAltPressed()) {
 			_keepRunning = false;
+		} else {
+			handleInputGame(Key key);
+		}
+	}
+
+	private void handleInputGame(Key key) {
+		Kind kind = key.getKind();
+		if (kind == Key.Kind.NormalKey) {
+			char ch = key.getCharacter();
+			String charStr = Character.toString(ch);
+			char[] guessArr = _gamePanel.newGuess(charStr);
+			// TODO: finish. Dont receive char[], but put it onscreen.
+			// TODO: add start of game somewhere
 		}
 	}
 

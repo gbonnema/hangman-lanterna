@@ -33,8 +33,8 @@ public class Hangman {
 	 * @throws ExperimentException
 	 *           if the word is empty
 	 */
-	public Hangman(String word) throws ExperimentException {
-		Utils.check(word.length() > 0, "Empty word in hangman");
+	public Hangman(String word) {
+		Utils.checkArg(word.length() > 0, "Empty word in hangman");
 		phase = 0;
 		hideWord = word;
 		int nrCharsToGuess = hideWord.length();
@@ -65,8 +65,9 @@ public class Hangman {
 	 *         specified character where it is in the word and space where it is
 	 *         not. If the character was not found, null is returned.
 	 */
-	public char[] guess(String charStr) throws ExperimentException {
-		Utils.check(charStr.length() == 1, "Error: charStr should be 1 character.");
+	public char[] guess(String charStr) {
+		Utils.checkArg(charStr.length() == 1,
+				"Error: charStr should be 1 character.");
 		char ch = charStr.charAt(0);
 		char[] result = new char[hideWord.length()];
 		for (int i = 0; i < hideWord.length(); i++) {
@@ -79,8 +80,12 @@ public class Hangman {
 		return result;
 	}
 
+	public char[] refreshGuess() {
+		return guessCharArray;
+	}
+
 	/**
-	 * This methode unites the result from guess() with the guessed characters up
+	 * This method unites the result from guess() with the guessed characters up
 	 * until this point.
 	 * 
 	 * @param chArr
@@ -111,9 +116,9 @@ public class Hangman {
 	 *           if the phase is invalid (internal error). This should never
 	 *           happen.
 	 */
-	public HangFig[] getHangFig() throws ExperimentException {
+	public HangFig[] getHangFig() {
 		// Sanity check
-		Utils.check(phase <= HangFig.HANGMAN_FIG_LEN,
+		Utils.checkInternal(phase <= HangFig.HANGMAN_FIG_LEN,
 				"Internal error: Invalid phase");
 
 		HangFig[] partialFig = new HangFig[phase];

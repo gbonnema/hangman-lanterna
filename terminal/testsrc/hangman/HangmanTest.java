@@ -57,7 +57,7 @@ public class HangmanTest {
 		try {
 			new Hangman(emptyWord);
 			fail("Empty Hangman should not succeed.");
-		} catch (ExperimentException e) {
+		} catch (Exception e) {
 			assertTrue(true);
 		}
 	}
@@ -71,14 +71,14 @@ public class HangmanTest {
 		try {
 			actual = hangman.guess(emptyWord);
 			fail("Should throw an exception.");
-		} catch (ExperimentException e) {
+		} catch (Exception e) {
 			assertTrue(true);
 		}
 
 		try {
 			actual = hangman.guess(this.guess0toolong);
 			fail("Should throw an exception.");
-		} catch (ExperimentException e) {
+		} catch (Exception e) {
 			assertTrue(true);
 		}
 

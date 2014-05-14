@@ -48,6 +48,21 @@ public final class Utils {
 	}
 
 	/**
+	 * Execute an internal consistency check on a specified condition. If the
+	 * condition is not true, throw an internal error.
+	 * 
+	 * @param cond
+	 *          The specified condition.
+	 * @param message
+	 *          The specified message when throwing the internal error.
+	 */
+	public static void checkInternal(boolean cond, String message) {
+		if (!cond) {
+			throw new InternalError(message);
+		}
+	}
+
+	/**
 	 * Check the variable is not null, otherwise an ExperimentException
 	 * 
 	 * @param cond
