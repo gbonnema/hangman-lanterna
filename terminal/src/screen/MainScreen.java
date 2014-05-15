@@ -73,6 +73,7 @@ public class MainScreen implements TextDraw {
 		_hangmanGame = new HangmanGame();
 		_hangmanGame.addObserver(_wordProgressPanel);
 		_hangmanGame.addObserver(_figurePanel);
+		// TODO: add Mainstream as observer of Hangman phase >= 5
 
 		_hangmanGame.createGame();
 
@@ -271,8 +272,9 @@ public class MainScreen implements TextDraw {
 		} else if (kind == Key.Kind.F4 && key.isAltPressed()) {
 			_keepRunning = false;
 		} else if (kind == Key.Kind.F2) {
-			// _wordProgressPanel.showWord();
-			// _screen.refresh();
+			_hangmanGame.createGame();
+			rebuildScreen();
+			_screen.refresh();
 		} else {
 			handleGameInput(key);
 			_screen.refresh();

@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
+import com.googlecode.lanterna.terminal.TerminalPosition;
+
 /**
  * Shows the figure of hangman while guessing characters of the word.
  * 
@@ -33,10 +35,14 @@ public class FigurePanel extends AbstractPanel implements Observer {
 	 */
 	@Override
 	public void refresh() {
+		drawBox(new TerminalPosition(0, 0), new TerminalPosition(getWidth(),
+				getHeight()));
+
+		int x = getPadding();
+		int y = getPadding();
 		for (String line : _figure) {
-			int x = getPadding();
-			int y = getPadding();
 			drawString(x, y, line);
+			y++;
 		}
 		refreshScreen();
 	}

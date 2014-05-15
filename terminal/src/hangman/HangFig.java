@@ -28,58 +28,58 @@ public class HangFig {
 		};
 	/* @formatter:on */
 
-	public static final int								PHASEMAX						= 5;
-	public static final int								HANGMAN_FIG_HEIGHT	= 6;
-	public static final int								HANGMAN_FIG_WIDTH		= F0.length;
+	public static final int								PHASEMAX						= F0.length;
+	public static final int								HANGMAN_FIG_HEIGHT	= F0.length;
+	public static final int								HANGMAN_FIG_WIDTH		= F0[0].length();
 
 	/* @formatter:off */
 	private static final String[]	F1= {
-		"                                  ", 
-		"                                  ", 
-		"                                  ", 
-		"                                  ", 
-		"                                  ", 
-		"         --------                 ", 
+		"                                    ", 
+		"                                    ", 
+		"                                    ", 
+		"                                    ", 
+		"                                    ", 
+		"         --------                   ", 
 		};
 	/* @formatter:on */
 	/* @formatter:off */
 	private static final String[]	F2= {
-		"                                  ", 
-		"                                  ", 
-		"                                  ", 
-		"            |                     ", 
-		"            |                     ", 
-		"         --------                 ", 
+		"                                    ", 
+		"                                    ", 
+		"                                    ", 
+		"            |                       ", 
+		"            |                       ", 
+		"         --------                   ", 
 		};
 	/* @formatter:on */
 	/* @formatter:off */
 	private static final String[]	F3= {
-		"                                  ", 
-		"            |                     ", 
-		"            |                     ", 
-		"            |                     ", 
-		"            |                     ", 
-		"         --------                 ", 
+		"                                    ", 
+		"            |                       ", 
+		"            |                       ", 
+		"            |                       ", 
+		"            |                       ", 
+		"         --------                   ", 
 		};
 	/* @formatter:on */
 	/* @formatter:off */
 	private static final String[]	F4= {
-		"            ------                ", 
-		"            |                     ", 
-		"            |                     ", 
-		"            |                     ", 
-		"            |                     ", 
-		"         --------                 ", 
+		"            ------                  ", 
+		"            |                       ", 
+		"            |                       ", 
+		"            |                       ", 
+		"            |                       ", 
+		"         --------                   ", 
 		};
 	/* @formatter:on */
 	/* @formatter:off */
 	private static final String[]	F5	= {
-		"            ------                ", 
-		"            |    |                ", 
-		"            |    x                ", 
-		"            |                     ", 
-		"            |                     ", 
-		"         --------                 ", 
+		"            ------                  ", 
+		"            |    |                  ", 
+		"            |    x   D E A D        ", 
+		"            |                       ", 
+		"            |        E X E C U T E D", 
+		"         --------                   ", 
 		};
 	/* @formatter:on */
 
@@ -95,7 +95,7 @@ public class HangFig {
 	}
 
 	public ArrayList<String> getFigure(int phase) {
-		Utils.checkArg(phase >= 0 && phase <= 5, "Phase has illegal value: "
+		Utils.checkArg(phase >= 0 && phase < PHASEMAX, "Phase has illegal value: "
 				+ phase);
 		return _figureList.get(phase);
 	}

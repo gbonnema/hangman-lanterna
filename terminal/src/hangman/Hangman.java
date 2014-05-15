@@ -74,14 +74,14 @@ public class Hangman {
 	public ArrayList<Character> guess(String charStr) {
 		Utils.checkArg(charStr.length() == 1,
 				"Error: charStr should be 1 character.");
-		if (_phase > HangFig.PHASEMAX) {
-			return null;
-		}
-		char ch = charStr.charAt(0);
-		ArrayList<Character> result = new ArrayList<>(_initialGuessCharArray);
-		for (int i = 0; i < _hideWord.length(); i++) {
-			if (_hideWord.charAt(i) == ch) {
-				result.set(i, ch);
+		ArrayList<Character> result = null;
+		if (_phase < HangFig.PHASEMAX - 1) {
+			char ch = charStr.charAt(0);
+			result = new ArrayList<>(_initialGuessCharArray);
+			for (int i = 0; i < _hideWord.length(); i++) {
+				if (_hideWord.charAt(i) == ch) {
+					result.set(i, ch);
+				}
 			}
 		}
 		return result;
