@@ -3,6 +3,8 @@
  */
 package screen;
 
+import hangman.HangFig;
+import hangman.HangmanGame;
 import util.ExperimentException;
 import util.Utils;
 
@@ -24,29 +26,32 @@ import com.googlecode.lanterna.terminal.TerminalPosition;
  */
 public class MainScreen implements TextDraw {
 
-	final String							_version	= "0.2";
+	private final String			_version	= "0.2";
 
-	final int									_padding	= 2;
+	private final int					_padding	= 2;
 
 	private boolean						_keepRunning;
 
-	Screen										_screen;
-	private Terminal					terminal;
-	ScreenWriter							_screenWriter;
-	int												_screenWidth;
-	int												_screenHeight;
+	private Screen						_screen;
+	private Terminal					_terminal;
+	private ScreenWriter			_screenWriter;
+	private int								_screenWidth;
+	private int								_screenHeight;
 
 	private DocPanel					_docPanel;
-	private GamePanel					_gamePanel;
+	private WordProgressPanel	_wordProgressPanel;
+	private FigurePanel				_figurePanel;
+
+	private HangmanGame				_hangmanGame;
 
 	/*
 	 * Prompt fields
 	 */
-	private int								promptLine;
+	private int								_promptLine;
 	int												_centerline;
-	private String						promptChar;
-	private TerminalPosition	prompt;
-	private TerminalPosition	promptStr;
+	private String						_promptChar;
+	private TerminalPosition	_prompt;
+	private TerminalPosition	_promptStr;
 
 	/**
 	 * The Constructor.
@@ -62,7 +67,14 @@ public class MainScreen implements TextDraw {
 		initializeScreen();
 
 		_docPanel = new DocPanel(this);
-		_gamePanel = new GamePanel(this);
+		_wordProgressPanel = new WordProgressPanel(this);
+		_figurePanel = new FigurePanel(this);
+
+		_hangmanGame = new HangmanGame();
+		_hangmanGame.addObserver(_wordProgressPanel);
+		_hangmanGame.addObserver(_figurePanel);
+
+		_hangmanGame.createGame();
 
 		rebuildScreen();
 
@@ -74,7 +86,7 @@ public class MainScreen implements TextDraw {
 	 * initial creation.
 	 */
 	private void initializeScreen() {
-		terminal = _screen.getTerminal();
+		_terminal = _screen.getTerminal();
 		_screenWriter = new ScreenWriter(_screen);
 		_screenWriter.setForegroundColor(Terminal.Color.BLUE);
 		_screenWriter.setBackgroundColor(Terminal.Color.WHITE);
@@ -97,15 +109,16 @@ public class MainScreen implements TextDraw {
 		initializePrompt();
 
 		wipeScreen();
-		drawHorDashLine(promptLine - 1);
+		drawHorDashLine(_promptLine - 1);
 		drawPrompt();
 
 		drawInfoLine();
 
-		_screen.setCursorPosition(prompt);
+		_screen.setCursorPosition(_prompt);
 
 		rebuildDocPanel();
-		rebuildGamePanel();
+		rebuildFigurePanel();
+		rebuildWordProgressPanel();
 
 		_screen.refresh();
 	}
@@ -140,18 +153,33 @@ public class MainScreen implements TextDraw {
 	/**
 	 * Builds the gamePanel and writes the game information to the screen.
 	 */
-	private void rebuildGamePanel() {
+	private void rebuildFigurePanel() {
 		int left = _padding;
 		int y = _padding;
+		TerminalPosition topLeft = new TerminalPosition(left, y);
+
+		int width = _centerline - _padding - left;
+		int height = HangFig.HANGMAN_FIG_HEIGHT;
+		TerminalPosition panelSize = new TerminalPosition(width, height);
+
+		_figurePanel.resetPanel(topLeft, panelSize);
+		_figurePanel.refresh();
+	}
+
+	/**
+	 * Builds the gamePanel and writes the game information to the screen.
+	 */
+	private void rebuildWordProgressPanel() {
+		int left = _padding;
+		int y = _figurePanel.getTop() + _figurePanel.getHeight();
 		TerminalPosition topLeft = new TerminalPosition(left, y);
 
 		int width = _centerline - _padding - left;
 		int height = (int) ((_screenHeight - _padding - y) * 0.6);
 		TerminalPosition panelSize = new TerminalPosition(width, height);
 
-		_gamePanel.resetPanel(topLeft, panelSize);
-		_gamePanel.newGame();
-		_gamePanel.refresh();
+		_wordProgressPanel.resetPanel(topLeft, panelSize);
+		_wordProgressPanel.refresh();
 	}
 
 	/**
@@ -159,11 +187,11 @@ public class MainScreen implements TextDraw {
 	 */
 	private void initializePrompt() {
 		/* create the prompt area */
-		promptChar = "$ > ";
-		promptLine = _screen.getTerminalSize().getRows() - 1;
-		prompt = new TerminalPosition(promptChar.length() + 1, promptLine);
-		promptStr = new TerminalPosition(0, promptLine);
-		promptLine = _screen.getTerminalSize().getRows() - 1;
+		_promptChar = "$ > ";
+		_promptLine = _screen.getTerminalSize().getRows() - 1;
+		_prompt = new TerminalPosition(_promptChar.length() + 1, _promptLine);
+		_promptStr = new TerminalPosition(0, _promptLine);
+		_promptLine = _screen.getTerminalSize().getRows() - 1;
 	}
 
 	/*
@@ -177,8 +205,8 @@ public class MainScreen implements TextDraw {
 	}
 
 	private void drawPrompt() {
-		int start = promptStr.getColumn();
-		_screenWriter.drawString(start, promptLine, promptChar,
+		int start = _promptStr.getColumn();
+		_screenWriter.drawString(start, _promptLine, _promptChar,
 				ScreenCharacterStyle.Bold);
 	}
 
@@ -187,8 +215,8 @@ public class MainScreen implements TextDraw {
 	 * @throws ExperimentException
 	 */
 	private void drawInfoLine() {
-		int width = terminal.getTerminalSize().getColumns();
-		int height = terminal.getTerminalSize().getRows();
+		int width = _terminal.getTerminalSize().getColumns();
+		int height = _terminal.getTerminalSize().getRows();
 
 		StringBuilder sb = new StringBuilder();
 
@@ -197,7 +225,7 @@ public class MainScreen implements TextDraw {
 		sb.append(width + " x " + height);
 
 		int x = width - sb.length() - 1;
-		int y = promptLine;
+		int y = _promptLine;
 		_screenWriter.drawString(x, y, sb.toString());
 	}
 
@@ -210,7 +238,7 @@ public class MainScreen implements TextDraw {
 	public void run() throws ExperimentException {
 
 		_keepRunning = true;
-		_gamePanel.newGame();
+		_hangmanGame.createGame();
 		while (_keepRunning) {
 			Key key = _screen.readInput();
 			if (key != null) {
@@ -243,7 +271,7 @@ public class MainScreen implements TextDraw {
 		} else if (kind == Key.Kind.F4 && key.isAltPressed()) {
 			_keepRunning = false;
 		} else if (kind == Key.Kind.F2) {
-			// _gamePanel.showWord();
+			// _wordProgressPanel.showWord();
 			// _screen.refresh();
 		} else {
 			handleGameInput(key);
@@ -256,7 +284,7 @@ public class MainScreen implements TextDraw {
 		if (kind == Key.Kind.NormalKey) {
 			char ch = key.getCharacter();
 			String charStr = Character.toString(ch);
-			_gamePanel.newGuess(charStr);
+			_hangmanGame.guess(charStr);
 		}
 	}
 
@@ -354,6 +382,11 @@ public class MainScreen implements TextDraw {
 	@Override
 	public ScreenWriter getAbsScreenWriter() {
 		return _screenWriter;
+	}
+
+	@Override
+	public void refreshScreen() {
+		_screen.refresh();
 	}
 
 }

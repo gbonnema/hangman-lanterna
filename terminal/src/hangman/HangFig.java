@@ -3,7 +3,9 @@
  */
 package hangman;
 
-import com.googlecode.lanterna.terminal.TerminalPosition;
+import java.util.ArrayList;
+
+import util.Utils;
 
 /**
  * A helper class for the hangman figure. For text contains numbers.
@@ -13,65 +15,97 @@ import com.googlecode.lanterna.terminal.TerminalPosition;
  */
 public class HangFig {
 
-	private TerminalPosition pos;
-	private char ch;
-	/**
-	 * The length of the hangman figure.
-	 */
-	public static final int HANGMAN_FIG_LEN = 6;
-	/**
-	 * The hangman figure in an array.
-	 */
-	public static final HangFig[] HANG_PART_ARR = new HangFig[HANGMAN_FIG_LEN];
+	private ArrayList<ArrayList<String>>	_figureList;
 
-	/**
-	 * Static initialization of the hangman figure.
-	 */
-	{
-		// Fill the TerminalPositions relative to origin of hangman
-		// For now a number counting down.
-		for (int offset = 0; offset < HANGMAN_FIG_LEN; offset++) {
-			TerminalPosition p = new TerminalPosition(0, offset + 1);
-			char c = Integer.toString(HANGMAN_FIG_LEN - offset).charAt(0);
-			HANG_PART_ARR[offset] = new HangFig(p, c);
-		}
+	/* @formatter:off */
+	private static final String[]	F0	= {
+		"                                  ", 
+		"                                  ", 
+		"                                  ", 
+		"                                  ", 
+		"                                  ", 
+		"                                  ", 
+		};
+	/* @formatter:on */
 
-	}
+	public static final int								PHASEMAX						= 5;
+	public static final int								HANGMAN_FIG_HEIGHT	= 6;
+	public static final int								HANGMAN_FIG_WIDTH		= F0.length;
+
+	/* @formatter:off */
+	private static final String[]	F1= {
+		"                                  ", 
+		"                                  ", 
+		"                                  ", 
+		"                                  ", 
+		"                                  ", 
+		"         --------                 ", 
+		};
+	/* @formatter:on */
+	/* @formatter:off */
+	private static final String[]	F2= {
+		"                                  ", 
+		"                                  ", 
+		"                                  ", 
+		"            |                     ", 
+		"            |                     ", 
+		"         --------                 ", 
+		};
+	/* @formatter:on */
+	/* @formatter:off */
+	private static final String[]	F3= {
+		"                                  ", 
+		"            |                     ", 
+		"            |                     ", 
+		"            |                     ", 
+		"            |                     ", 
+		"         --------                 ", 
+		};
+	/* @formatter:on */
+	/* @formatter:off */
+	private static final String[]	F4= {
+		"            ------                ", 
+		"            |                     ", 
+		"            |                     ", 
+		"            |                     ", 
+		"            |                     ", 
+		"         --------                 ", 
+		};
+	/* @formatter:on */
+	/* @formatter:off */
+	private static final String[]	F5	= {
+		"            ------                ", 
+		"            |    |                ", 
+		"            |    x                ", 
+		"            |                     ", 
+		"            |                     ", 
+		"         --------                 ", 
+		};
+	/* @formatter:on */
 
 	/* Prevent instantiation */
-	private HangFig(TerminalPosition pos, char ch) {
-		this.setPos(pos);
-		this.setCh(ch);
+	public HangFig() {
+		_figureList = new ArrayList<>();
+		_figureList.add(convertArray(F0));
+		_figureList.add(convertArray(F1));
+		_figureList.add(convertArray(F2));
+		_figureList.add(convertArray(F3));
+		_figureList.add(convertArray(F4));
+		_figureList.add(convertArray(F5));
 	}
 
-	/**
-	 * @return the pos
-	 */
-	public TerminalPosition getPos() {
-		return pos;
+	public ArrayList<String> getFigure(int phase) {
+		Utils.checkArg(phase >= 0 && phase <= 5, "Phase has illegal value: "
+				+ phase);
+		return _figureList.get(phase);
 	}
 
-	/**
-	 * @param pos
-	 *            the pos to set
-	 */
-	public void setPos(TerminalPosition pos) {
-		this.pos = pos;
-	}
-
-	/**
-	 * @return the ch
-	 */
-	public char getCh() {
-		return ch;
-	}
-
-	/**
-	 * @param ch
-	 *            the ch to set
-	 */
-	public void setCh(char ch) {
-		this.ch = ch;
+	private ArrayList<String> convertArray(String[] figure) {
+		ArrayList<String> lineList = new ArrayList<>();
+		for (String line : figure) {
+			lineList.add(line);
+		}
+		return lineList;
 	}
 
 }

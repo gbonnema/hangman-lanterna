@@ -214,20 +214,6 @@ public abstract class AbstractPanel {
 		_absScreenWriter.drawString(x, y, string, styles_);
 	}
 
-	/**
-	 * Translate relative coordinates to absolute coordinates.
-	 * 
-	 * @param x
-	 *          the relative x coordinate.
-	 * @param y
-	 *          the relative y coordinate.
-	 * @return the absolute x and y coordinate in a TerminalPosition.
-	 */
-	private TerminalPosition relativeToAbs(int x, int y) {
-		TerminalPosition absCoord = new TerminalPosition(_absLeft + x, _absTop + y);
-		return absCoord;
-	}
-
 	private int rel2absX(final int x) {
 		return _absLeft + x;
 	}
@@ -343,6 +329,10 @@ public abstract class AbstractPanel {
 		_absTopLeftCorner = topleftCorner;
 		_absPanelSize = size;
 		calcBorders();
+	}
+
+	protected void refreshScreen() {
+		this._mainScreen.refreshScreen();
 	}
 
 	/**

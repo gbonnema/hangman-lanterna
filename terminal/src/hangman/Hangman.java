@@ -3,6 +3,8 @@
  */
 package hangman;
 
+import java.util.ArrayList;
+
 import util.ExperimentException;
 import util.Utils;
 
@@ -18,12 +20,14 @@ import util.Utils;
  */
 public class Hangman {
 
-	private String			hideWord;
-	private char[]			guessCharArray;
-	private char[]			initialGuessCharArray;
-	private int					phase;
+	private String								_hideWord;
+	private ArrayList<Character>	_correctlyGuessedCharArray;
+	private ArrayList<Character>	_initialGuessCharArray;
+	private int										_phase;
 
-	private HangmanDoc	doc	= new HangmanDoc();
+	private HangmanDoc						_doc	= new HangmanDoc();
+
+	private HangFig								_hangFig;
 
 	/**
 	 * Constructor for hangman with a specified word.
@@ -35,14 +39,14 @@ public class Hangman {
 	 */
 	public Hangman(String word) {
 		Utils.checkArg(word.length() > 0, "Empty word in hangman");
-		phase = 0;
-		hideWord = word;
-		int nrCharsToGuess = hideWord.length();
-		guessCharArray = new char[nrCharsToGuess];
-		initialGuessCharArray = new char[nrCharsToGuess];
-		for (int i = 0; i < nrCharsToGuess; i++) {
-			guessCharArray[i] = '_';
-			initialGuessCharArray[i] = '_';
+		_phase = 0;
+		_hideWord = word;
+		_hangFig = new HangFig();
+		_correctlyGuessedCharArray = new ArrayList<>();
+		_initialGuessCharArray = new ArrayList<>();
+		for (int i = 0; i < _hideWord.length(); i++) {
+			_correctlyGuessedCharArray.add('_');
+			_initialGuessCharArray.add('_');
 		}
 	}
 
@@ -52,7 +56,7 @@ public class Hangman {
 	 * @return
 	 */
 	public int getHangFigSize() {
-		return HangFig.HANGMAN_FIG_LEN;
+		return HangFig.HANGMAN_FIG_HEIGHT;
 	}
 
 	/**
@@ -62,26 +66,25 @@ public class Hangman {
 	 * @param charStr
 	 *          the specified character
 	 * @return an array containing the positions of the hidden word with the
-	 *         specified character where it is in the word and space where it is
-	 *         not. If the character was not found, null is returned.
+	 *         specified character where it is in the word and underscore where it
+	 *         is not. If the character was not found, the initial array is
+	 *         returned where every character has an underscore. if the phase has
+	 *         ended, then null is returned in stead.
 	 */
-	public char[] guess(String charStr) {
+	public ArrayList<Character> guess(String charStr) {
 		Utils.checkArg(charStr.length() == 1,
 				"Error: charStr should be 1 character.");
+		if (_phase > HangFig.PHASEMAX) {
+			return null;
+		}
 		char ch = charStr.charAt(0);
-		char[] result = new char[hideWord.length()];
-		for (int i = 0; i < hideWord.length(); i++) {
-			if (hideWord.charAt(i) == ch) {
-				result[i] = ch;
-			} else {
-				result[i] = initialGuessCharArray[i];
+		ArrayList<Character> result = new ArrayList<>(_initialGuessCharArray);
+		for (int i = 0; i < _hideWord.length(); i++) {
+			if (_hideWord.charAt(i) == ch) {
+				result.set(i, ch);
 			}
 		}
 		return result;
-	}
-
-	public char[] refreshGuess() {
-		return guessCharArray;
 	}
 
 	/**
@@ -92,47 +95,53 @@ public class Hangman {
 	 *          The guess array returned from guess();
 	 * @return the guess character array
 	 */
-	public char[] updateGuess(char[] chArr) {
-		// Update a wrong guess
+	public boolean updateGuessOk(ArrayList<Character> chArr) {
+		// Check if previous result was null
 		if (chArr == null) {
-			phase++;
-			return guessCharArray;
+			return false;
+		}
+		// Update a wrong guess
+		if (chArr.equals(_initialGuessCharArray)) {
+			_phase++;
+			return false;
 		}
 		// update a right guess
 		char empty = '_';
-		for (int i = 0; i < hideWord.length(); i++) {
-			if (chArr[i] == empty) {
+		for (int i = 0; i < _hideWord.length(); i++) {
+			if (chArr.get(i) == empty) {
 				continue;
 			}
-			guessCharArray[i] = chArr[i];
+			_correctlyGuessedCharArray.set(i, chArr.get(i));
 		}
-		return guessCharArray;
+		return true;
+	}
+
+	public ArrayList<Character> refreshGuess() {
+		return _correctlyGuessedCharArray;
 	}
 
 	/**
-	 * @return the partially filled hangman figure depending on the phase we are
-	 *         in.
-	 * @throws ExperimentException
-	 *           if the phase is invalid (internal error). This should never
-	 *           happen.
+	 * Return the figure for the current phase.
+	 * 
+	 * @return
 	 */
-	public HangFig[] getHangFig() {
-		// Sanity check
-		Utils.checkInternal(phase <= HangFig.HANGMAN_FIG_LEN,
-				"Internal error: Invalid phase");
-
-		HangFig[] partialFig = new HangFig[phase];
-		for (int i = 0; i < phase; i++) {
-			partialFig[i] = HangFig.HANG_PART_ARR[i];
-		}
-		return partialFig;
+	public ArrayList<String> getFigure() {
+		return _hangFig.getFigure(_phase);
 	}
 
 	/**
-	 * @return the initialGuessCharArray
+	 * 
+	 * @return the array containing correctly guessed characters.
 	 */
-	public char[] getInitialGuessCharArray() {
-		return initialGuessCharArray;
+	public ArrayList<Character> getCorrectlyGuessedArray() {
+		return _correctlyGuessedCharArray;
+	}
+
+	/**
+	 * @return the _initialGuessCharArray
+	 */
+	public ArrayList<Character> getInitialGuessCharArray() {
+		return _initialGuessCharArray;
 	}
 
 	/**
@@ -141,7 +150,7 @@ public class Hangman {
 	 * @return the long description for this game.
 	 */
 	public String getLongDescription() {
-		return doc.getLongDescription();
+		return _doc.getLongDescription();
 	}
 
 	/**
@@ -150,18 +159,18 @@ public class Hangman {
 	 * @return the short description for this game.
 	 */
 	public String getShortDescription() {
-		return doc.getShortDescription();
+		return _doc.getShortDescription();
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder result = new StringBuilder();
 		result.append("word = ");
-		result.append(hideWord);
+		result.append(_hideWord);
 		result.append(", guessed = ");
-		result.append(guessCharArray);
-		result.append(", phase = ");
-		result.append(phase);
+		result.append(_correctlyGuessedCharArray);
+		result.append(", _phase = ");
+		result.append(_phase);
 		return result.toString();
 	}
 }

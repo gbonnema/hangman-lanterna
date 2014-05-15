@@ -79,4 +79,9 @@ public interface TextDraw {
 	 */
 	public ScreenWriter getAbsScreenWriter();
 
+	/**
+	 * Refresh the screen.
+	 */
+	public void refreshScreen();
+
 }
