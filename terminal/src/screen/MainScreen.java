@@ -41,6 +41,7 @@ public class MainScreen implements TextDraw {
 	private DocPanel					_docPanel;
 	private WordProgressPanel	_wordProgressPanel;
 	private FigurePanel				_figurePanel;
+	private GameSolutionPanel	_gameSolutionPanel;
 
 	private HangmanGame				_hangmanGame;
 
@@ -69,10 +70,12 @@ public class MainScreen implements TextDraw {
 		_docPanel = new DocPanel(this);
 		_wordProgressPanel = new WordProgressPanel(this);
 		_figurePanel = new FigurePanel(this);
+		_gameSolutionPanel = new GameSolutionPanel(this);
 
 		_hangmanGame = new HangmanGame();
 		_hangmanGame.addObserver(_wordProgressPanel);
 		_hangmanGame.addObserver(_figurePanel);
+		_hangmanGame.addObserver(_gameSolutionPanel);
 		// TODO: add Mainstream as observer of Hangman phase >= 5
 
 		_hangmanGame.createGame();
@@ -120,6 +123,7 @@ public class MainScreen implements TextDraw {
 		rebuildDocPanel();
 		rebuildFigurePanel();
 		rebuildWordProgressPanel();
+		rebuildGameSolutionPanel();
 
 		_screen.refresh();
 	}
@@ -168,7 +172,7 @@ public class MainScreen implements TextDraw {
 	}
 
 	/**
-	 * Builds the gamePanel and writes the game information to the screen.
+	 * Builds the wordProgressPanel and writes the game information to the screen.
 	 */
 	private void rebuildWordProgressPanel() {
 		int left = _padding;
@@ -181,6 +185,22 @@ public class MainScreen implements TextDraw {
 
 		_wordProgressPanel.resetPanel(topLeft, panelSize);
 		_wordProgressPanel.refresh();
+	}
+
+	/**
+	 * Builds the gameSolutionPanel and writes the game information to the screen.
+	 */
+	private void rebuildGameSolutionPanel() {
+		int left = _centerline + _padding;
+		int y = _docPanel.getTop() + _docPanel.getHeight();
+		TerminalPosition topLeft = new TerminalPosition(left, y);
+
+		int width = _screenWidth - _padding - left;
+		int height = (int) ((_screenHeight - _padding - y) * 0.6);
+		TerminalPosition panelSize = new TerminalPosition(width, height);
+
+		_gameSolutionPanel.resetPanel(topLeft, panelSize);
+		_gameSolutionPanel.refresh();
 	}
 
 	/**

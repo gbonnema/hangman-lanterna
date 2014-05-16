@@ -104,6 +104,10 @@ public class HangmanGame extends Observable {
 		return result;
 	}
 
+	public String getSolution() {
+		return _entry._wordNL;
+	}
+
 	/**
 	 * 
 	 * @return the game message.
