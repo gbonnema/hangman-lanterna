@@ -20,14 +20,20 @@ import util.Utils;
  */
 public class Hangman {
 
-	private String								_hideWord;
-	private ArrayList<Character>	_correctlyGuessedCharArray;
-	private ArrayList<Character>	_initialGuessCharArray;
-	private int										_phase;
+	private String _hideWord;
+	private ArrayList<Character> _correctlyGuessedCharArray;
+	private ArrayList<Character> _initialGuessCharArray;
+	private int _phase;
 
-	private HangmanDoc						_doc	= new HangmanDoc();
+	private HangmanDoc _doc = new HangmanDoc();
 
-	private HangFig								_hangFig;
+	private HangFig _hangFig;
+
+	private enum Status {
+		GUESSING, WORD_GUESSED, WORD_NOT_GUESSED
+	};
+
+	private Status _status;
 
 	/**
 	 * Constructor for hangman with a specified word.
@@ -40,6 +46,7 @@ public class Hangman {
 	public Hangman(String word) {
 		Utils.checkArg(word.length() > 0, "Empty word in hangman");
 		_phase = 0;
+		_status = Status.GUESSING;
 		_hideWord = word;
 		_hangFig = new HangFig();
 		_correctlyGuessedCharArray = new ArrayList<>();
@@ -48,15 +55,6 @@ public class Hangman {
 			_correctlyGuessedCharArray.add('_');
 			_initialGuessCharArray.add('_');
 		}
-	}
-
-	/**
-	 * Return the length of the hangman figure
-	 * 
-	 * @return
-	 */
-	public int getHangFigSize() {
-		return HangFig.HANGMAN_FIG_HEIGHT;
 	}
 
 	/**
@@ -72,16 +70,53 @@ public class Hangman {
 	 *         ended, then null is returned in stead.
 	 */
 	public ArrayList<Character> guess(String charStr) {
-		Utils.checkArg(charStr.length() == 1,
-				"Error: charStr should be 1 character.");
-		ArrayList<Character> result = null;
-		if (_phase < HangFig.PHASEMAX - 1) {
+		/* Sanity input check */
+		boolean charStrIsOne = charStr.length() == 1;
+		Utils.checkArg(charStrIsOne, "Error: charStr should be 1 character.");
+
+		ArrayList<Character> resultingHits = null;
+		if (_status == Status.GUESSING) {
 			char ch = charStr.charAt(0);
-			result = new ArrayList<>(_initialGuessCharArray);
-			for (int i = 0; i < _hideWord.length(); i++) {
-				if (_hideWord.charAt(i) == ch) {
-					result.set(i, ch);
-				}
+			resultingHits = createHitList(ch);
+			if (guessedWord()) {
+				_status = Status.WORD_GUESSED;
+			}
+			updateGuessedWord(resultingHits);
+
+		}
+		return resultingHits;
+	}
+
+	/**
+	 * @return
+	 */
+	private boolean guessedWord() {
+		boolean emptyCharFound = false;
+		for (int i = 0; i < _correctlyGuessedCharArray.size(); i++) {
+			if (_correctlyGuessedCharArray.get(i) == '_') {
+				emptyCharFound = true;
+				break;
+			}
+		}
+		return !emptyCharFound;
+	}
+
+	/**
+	 * 
+	 * Create a hit list for this character.
+	 * 
+	 * @param ch
+	 *          The character being guessed.
+	 * 
+	 * @return the character list. Any position equals to char has that char. The
+	 *         other positions have an underscore.
+	 */
+	private ArrayList<Character> createHitList(char ch) {
+		ArrayList<Character> result;
+		result = new ArrayList<>(_initialGuessCharArray);
+		for (int i = 0; i < _hideWord.length(); i++) {
+			if (_hideWord.charAt(i) == ch) {
+				result.set(i, ch);
 			}
 		}
 		return result;
@@ -95,16 +130,41 @@ public class Hangman {
 	 *          The guess array returned from guess();
 	 * @return the guess character array
 	 */
-	public boolean updateGuessOk(ArrayList<Character> chArr) {
+	public boolean guessRight(ArrayList<Character> chArr) {
+		boolean result = false;
 		// Check if previous result was null
 		if (chArr == null) {
-			return false;
+			return result;
 		}
-		// Update a wrong guess
-		if (chArr.equals(_initialGuessCharArray)) {
+		if (wrongGuess(chArr)) {
 			_phase++;
-			return false;
 		}
+		if (executedPhase()) {
+			_status = Status.WORD_NOT_GUESSED;
+		}
+		updateGuessedWord(chArr);
+		return true;
+	}
+
+	/**
+	 * @return
+	 */
+	private boolean executedPhase() {
+		return _phase >= HangFig.PHASEMAX - 1;
+	}
+
+	/**
+	 * @param chArr
+	 * @return
+	 */
+	private boolean wrongGuess(ArrayList<Character> chArr) {
+		return chArr.equals(_initialGuessCharArray);
+	}
+
+	/**
+	 * @param chArr
+	 */
+	private void updateGuessedWord(ArrayList<Character> chArr) {
 		// update a right guess
 		char empty = '_';
 		for (int i = 0; i < _hideWord.length(); i++) {
@@ -113,7 +173,6 @@ public class Hangman {
 			}
 			_correctlyGuessedCharArray.set(i, chArr.get(i));
 		}
-		return true;
 	}
 
 	public ArrayList<Character> refreshGuess() {
@@ -160,6 +219,30 @@ public class Hangman {
 	 */
 	public String getShortDescription() {
 		return _doc.getShortDescription();
+	}
+
+	/**
+	 * 
+	 * @return true if we are still guessing.
+	 */
+	public boolean isGuessing() {
+		return _status == Status.GUESSING;
+	}
+
+	/**
+	 * 
+	 * @return true if the word was guessed right.
+	 */
+	public boolean wonGuess() {
+		return _status == Status.WORD_GUESSED;
+	}
+
+	public boolean lostGuess() {
+		return _status == Status.WORD_NOT_GUESSED;
+	}
+
+	public Status getStatus() {
+		return _status;
 	}
 
 	@Override

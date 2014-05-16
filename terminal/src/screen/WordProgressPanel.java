@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
+import util.Utils;
+
 import com.googlecode.lanterna.terminal.TerminalPosition;
 
 /**
@@ -22,7 +24,7 @@ import com.googlecode.lanterna.terminal.TerminalPosition;
  */
 public class WordProgressPanel extends AbstractPanel implements Observer {
 
-	private ArrayList<Character>	_guessArray;
+	private ArrayList<Character> _guessArray;
 
 	/**
 	 * @param mainScreen
@@ -33,17 +35,8 @@ public class WordProgressPanel extends AbstractPanel implements Observer {
 
 	private void refreshEntry() {
 		TerminalPosition coord = new TerminalPosition(getPadding(), getPadding());
-		String spacedGuessArray = disperse(_guessArray);
+		String spacedGuessArray = Utils.disperse(_guessArray);
 		drawString(coord.getColumn(), coord.getRow(), spacedGuessArray);
-	}
-
-	private String disperse(ArrayList<Character> chArr) {
-		StringBuilder result = new StringBuilder();
-		result.append(chArr.get(0));
-		for (int i = 1; i < chArr.size(); i++) {
-			result.append(" ").append(chArr.get(i));
-		}
-		return result.toString();
 	}
 
 	/*
@@ -70,5 +63,4 @@ public class WordProgressPanel extends AbstractPanel implements Observer {
 			refreshScreen();
 		}
 	}
-
 }

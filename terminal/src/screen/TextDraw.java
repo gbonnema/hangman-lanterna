@@ -55,25 +55,6 @@ public interface TextDraw {
 	void drawHorDashLine(int line);
 
 	/**
-	 * Builds a line start with one startchar en ending with an endchar, in the
-	 * middle a midchar. Returns the result.
-	 * 
-	 * You can use this to create a box, or just a line
-	 * 
-	 * @param startchar
-	 *          The first character of the line.
-	 * @param endchar
-	 *          The last character of the line.
-	 * @param midchar
-	 *          The characters in the middle
-	 * @param len
-	 *          The length of the line.
-	 * @return the resulting line as a String.
-	 */
-	String fillLine(final char startchar, final char endchar, final char midchar,
-			final int len) throws ExperimentException;
-
-	/**
 	 * 
 	 * @return the absolute screen writer.
 	 */

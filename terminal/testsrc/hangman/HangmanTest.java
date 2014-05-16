@@ -93,7 +93,7 @@ public class HangmanTest {
 	}
 
 	/**
-	 * Test method for {@link hangman.Hangman#updateGuessOk(char[])}.
+	 * Test method for {@link hangman.Hangman#guessRight(char[])}.
 	 */
 	@Test
 	public void testUpdateGuess() throws ExperimentException {
@@ -101,7 +101,7 @@ public class HangmanTest {
 		ArrayList<Character> chArr;
 
 		chArr = hangman.guess(guess1wrong);
-		if (hangman.updateGuessOk(chArr)) {
+		if (hangman.guessRight(chArr)) {
 			fail("Should not have guessed char: " + guess1wrong);
 		} else {
 			actual = hangman.getCorrectlyGuessedArray();
@@ -109,7 +109,7 @@ public class HangmanTest {
 		}
 
 		chArr = hangman.guess(guess2ok);
-		if (hangman.updateGuessOk(chArr)) {
+		if (hangman.guessRight(chArr)) {
 			actual = hangman.getCorrectlyGuessedArray();
 			assertEquals(expectResult2, actual.toString());
 		} else {
@@ -117,7 +117,7 @@ public class HangmanTest {
 		}
 
 		chArr = hangman.guess(guess3ok);
-		if (hangman.updateGuessOk(chArr)) {
+		if (hangman.guessRight(chArr)) {
 			actual = hangman.getCorrectlyGuessedArray();
 			assertEquals(expectResult3, actual.toString());
 		}

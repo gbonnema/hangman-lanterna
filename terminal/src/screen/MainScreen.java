@@ -17,6 +17,15 @@ import com.googlecode.lanterna.screen.ScreenWriter;
 import com.googlecode.lanterna.terminal.Terminal;
 import com.googlecode.lanterna.terminal.TerminalPosition;
 
+/*
+ * TODO TBD add Legend to screen or combine with panel?
+ */
+/*
+ * TODO add Legend to AbstractPanel
+ */
+/*
+ * TODO add title to AbstractPanel
+ */
 /**
  * The main screen for this experiment: a hangman game on text screens using
  * Lanterna.
@@ -26,33 +35,34 @@ import com.googlecode.lanterna.terminal.TerminalPosition;
  */
 public class MainScreen implements TextDraw {
 
-	private final String			_version	= "0.2";
+	private final String _version = "0.2";
 
-	private final int					_padding	= 2;
+	private final int _padding = 2;
 
-	private boolean						_keepRunning;
+	private boolean _keepRunning;
 
-	private Screen						_screen;
-	private Terminal					_terminal;
-	private ScreenWriter			_screenWriter;
-	private int								_screenWidth;
-	private int								_screenHeight;
+	private Screen _screen;
+	private Terminal _terminal;
+	private ScreenWriter _screenWriter;
+	private int _screenWidth;
+	private int _screenHeight;
 
-	private DocPanel					_docPanel;
-	private WordProgressPanel	_wordProgressPanel;
-	private FigurePanel				_figurePanel;
-	private GameSolutionPanel	_gameSolutionPanel;
+	private DocPanel _docPanel;
+	private WordProgressPanel _wordProgressPanel;
+	private FigurePanel _figurePanel;
+	private GameSolutionPanel _gameSolutionPanel;
+	private GameMessagePanel _gameMessagePanel;
 
-	private HangmanGame				_hangmanGame;
+	private HangmanGame _hangmanGame;
 
 	/*
 	 * Prompt fields
 	 */
-	private int								_promptLine;
-	int												_centerline;
-	private String						_promptChar;
-	private TerminalPosition	_prompt;
-	private TerminalPosition	_promptStr;
+	private int _promptLine;
+	int _centerline;
+	private String _promptChar;
+	private TerminalPosition _prompt;
+	private TerminalPosition _promptStr;
 
 	/**
 	 * The Constructor.
@@ -71,12 +81,13 @@ public class MainScreen implements TextDraw {
 		_wordProgressPanel = new WordProgressPanel(this);
 		_figurePanel = new FigurePanel(this);
 		_gameSolutionPanel = new GameSolutionPanel(this);
+		_gameMessagePanel = new GameMessagePanel(this);
 
 		_hangmanGame = new HangmanGame();
 		_hangmanGame.addObserver(_wordProgressPanel);
 		_hangmanGame.addObserver(_figurePanel);
 		_hangmanGame.addObserver(_gameSolutionPanel);
-		// TODO: add Mainstream as observer of Hangman phase >= 5
+		_hangmanGame.addObserver(_gameMessagePanel);
 
 		_hangmanGame.createGame();
 
@@ -124,6 +135,7 @@ public class MainScreen implements TextDraw {
 		rebuildFigurePanel();
 		rebuildWordProgressPanel();
 		rebuildGameSolutionPanel();
+		rebuildGameMessagePanel();
 
 		_screen.refresh();
 	}
@@ -191,7 +203,7 @@ public class MainScreen implements TextDraw {
 	 * Builds the gameSolutionPanel and writes the game information to the screen.
 	 */
 	private void rebuildGameSolutionPanel() {
-		int left = _centerline + _padding;
+		int left = _padding;
 		int y = _docPanel.getTop() + _docPanel.getHeight();
 		TerminalPosition topLeft = new TerminalPosition(left, y);
 
@@ -201,6 +213,23 @@ public class MainScreen implements TextDraw {
 
 		_gameSolutionPanel.resetPanel(topLeft, panelSize);
 		_gameSolutionPanel.refresh();
+	}
+
+	/**
+	 * Builds the gameMessagePanel and writes the game information to the screen.
+	 */
+	private void rebuildGameMessagePanel() {
+		int left = _padding;
+		int y = _promptLine - 2;
+		TerminalPosition topLeft = new TerminalPosition(left, y);
+
+		int width = _screenWidth - _padding - left;
+		int height = 1;
+		TerminalPosition panelSize = new TerminalPosition(width, height);
+
+		_gameMessagePanel.setPadding(0);
+		_gameMessagePanel.resetPanel(topLeft, panelSize);
+		_gameMessagePanel.refresh();
 	}
 
 	/**
@@ -331,7 +360,7 @@ public class MainScreen implements TextDraw {
 	@Override
 	public void drawHorLine(int col, int line, int width, String ch)
 			throws ExperimentException {
-		String horLine = createHorLine(ch, width);
+		String horLine = Constructor.createHorLine(ch, width);
 		_screenWriter.drawString(col, line, horLine);
 	}
 
@@ -347,9 +376,9 @@ public class MainScreen implements TextDraw {
 		Utils.checkArg(width >= 5, "minimum width box = 5. specified: " + width
 				+ "\n" + "\n" + "from = " + from + ", to = " + to + "\n");
 
-		topStr = fillLine('+', '+', '-', width);
-		bottomStr = fillLine('+', '+', '-', width);
-		midStr = fillLine('|', '|', ' ', width);
+		topStr = Constructor.fillLine('+', '+', '-', width);
+		bottomStr = Constructor.fillLine('+', '+', '-', width);
+		midStr = Constructor.fillLine('|', '|', ' ', width);
 		/* Draw top and bottom first */
 		_screenWriter.drawString(left, top, topStr);
 		_screenWriter.drawString(left, bottom, bottomStr);
@@ -363,47 +392,9 @@ public class MainScreen implements TextDraw {
 		}
 	}
 
-	/**
-	 * Builds a line start with one startchar en ending with an endchar, in the
-	 * middle a midchar. Returns the result.
-	 * 
-	 * You can use this to create a box, or just a line
-	 * 
-	 * @param startchar
-	 *          The first character of the line.
-	 * @param endchar
-	 *          The last character of the line.
-	 * @param midchar
-	 *          The characters in the middle
-	 * @param len
-	 *          The length of the line.
-	 * @return the resulting line as a String.
-	 */
-	@Override
-	public String fillLine(final char startchar, final char endchar,
-			final char midchar, final int len) {
-		Utils.checkArg(len > 2, "wrong length for filling a line.");
-		StringBuilder result = new StringBuilder();
-		result.append(startchar);
-		for (int i = 1; i < len; i++) {
-			result.append(midchar);
-		}
-		result.append(endchar);
-		return result.toString();
-	}
-
 	private String createHorLine(String ch) {
 		int length = _screen.getTerminalSize().getColumns();
-		return createHorLine(ch, length);
-	}
-
-	private String createHorLine(String ch, int length) {
-		Utils.checkArg(ch.length() == 1, "String must have 1 character: " + ch);
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < length; i++) {
-			sb.append(ch);
-		}
-		return sb.toString();
+		return Constructor.createHorLine(ch, length);
 	}
 
 	/**

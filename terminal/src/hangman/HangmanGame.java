@@ -12,6 +12,11 @@ import util.Utils;
 import vocabulary.Vocab;
 import vocabulary.Vocab.VocabEntry;
 
+/*
+ * TODO The dashes of gamepanel clash with the dashes of solution. TODO Right
+ * after guessing The message says "next guess" wrongly
+ */
+
 /**
  * This is the controller for the game. It understands what hangman is for and
  * follows the phases toward execution or savior. It finds a word in the
@@ -25,13 +30,22 @@ import vocabulary.Vocab.VocabEntry;
  */
 public class HangmanGame extends Observable {
 
-	private Vocab									_vocab;
-	private Hangman								_hangman;
-	private ArrayList<Character>	_guessArray;
-	private ArrayList<Character>	_guessedArray;
-	private String								_gameMessage;
+	private final String _startMsg = "Guess a character";
+	private final String _startMsgDup =
+			"You already guessed that. Guess another character";
+	private final String _contMsgWrong = "Wrong. Guess another character";
+	private final String _contMsgRight = "Guess another character";
+	private final String _endMsgLost = "You Lost. Innocent hangs.";
+	private final String _endMsgWon = "You saved the innocent: hero!";
+	/*******************************************************************/
 
-	private VocabEntry						_entry;
+	private Vocab _vocab;
+	private Hangman _hangman;
+	private ArrayList<Character> _guessArray;
+	private ArrayList<Character> _guessedArray;
+	private String _gameMessage;
+
+	private VocabEntry _entry;
 
 	public HangmanGame() throws ExperimentException {
 		try {
@@ -41,6 +55,7 @@ public class HangmanGame extends Observable {
 					"File not found or not readable. Error message: " + e.getMessage());
 		}
 		_entry = _vocab.new VocabEntry(0, "not a word", "not a word");
+		_gameMessage = _startMsg;
 	}
 
 	public void createGame() {
@@ -48,6 +63,7 @@ public class HangmanGame extends Observable {
 		_hangman = new Hangman(_entry._wordNL);
 		_guessArray = _hangman.refreshGuess();
 		_guessedArray = new ArrayList<>();
+		_gameMessage = _startMsg;
 		setChanged();
 		notifyObservers();
 	}
@@ -62,9 +78,6 @@ public class HangmanGame extends Observable {
 	public void guess(String charStr) {
 		Utils.checkInternal(_hangman != null, "Internal: _hangman == null.");
 		updateChar(charStr);
-		/* Send notify to observers */
-		setChanged();
-		notifyObservers();
 	}
 
 	/*
@@ -72,19 +85,39 @@ public class HangmanGame extends Observable {
 	 */
 	private void updateChar(String charStr) {
 		Character ch = charStr.charAt(0);
-		ArrayList<Character> chArr = _hangman.guess(charStr);
-		if (chArr == null) {
-			_gameMessage = "Game is finished, start a new game.";
-		} else {
-			/* update and process response */
-			if (_hangman.updateGuessOk(chArr)) {
-				_guessedArray.add(ch);
-				_gameMessage = "Enter the next character";
-			} else {
-				_gameMessage =
-						"Character " + ch + " already guessed. THE INNOCENT WILL HANG!";
-			}
+		// Check finished
+		if (!_hangman.isGuessing()) {
+			updateHangmanResponse(null);
+			return;
 		}
+		// We are still guessing
+		// check duplicate
+		if (_guessedArray.contains(ch)) {
+			_gameMessage = _startMsgDup;
+			return;
+		}
+		// Ask: is it in the word?
+		_guessedArray.add(ch);
+		ArrayList<Character> chArr = _hangman.guess(charStr);
+		_gameMessage = updateHangmanResponse(chArr);
+		/* Send notify to observers */
+		setChanged();
+		notifyObservers();
+	}
+
+	/**
+	 * Check hangman's response.
+	 * 
+	 * @param chArr
+	 */
+	private String updateHangmanResponse(ArrayList<Character> chArr) {
+
+		String response;
+		response = _hangman.guessRight(chArr) ? _contMsgRight : _contMsgWrong;
+		if (!_hangman.isGuessing()) {
+			response = _hangman.wonGuess() ? _endMsgWon : _endMsgLost;
+		}
+		return response;
 	}
 
 	/**
