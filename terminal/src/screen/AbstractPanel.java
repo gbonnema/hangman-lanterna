@@ -68,6 +68,11 @@ public abstract class AbstractPanel {
 		panelWrite(x, y, horLine);
 	}
 
+	public void drawBorder() {
+		drawBox(new TerminalPosition(0, 0), new TerminalPosition(getWidth() - 1,
+				getHeight() - 1));
+	}
+
 	/**
 	 * Draws a box within the panel.
 	 * 

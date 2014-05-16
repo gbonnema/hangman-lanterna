@@ -160,7 +160,7 @@ public class MainScreen implements TextDraw {
 		TerminalPosition topLeft = new TerminalPosition(left, y);
 
 		int width = _centerline - _padding - left;
-		int height = HangFig.HANGMAN_FIG_HEIGHT;
+		int height = HangFig.HANGMAN_FIG_HEIGHT + 2 * _padding;
 		TerminalPosition panelSize = new TerminalPosition(width, height);
 
 		_figurePanel.resetPanel(topLeft, panelSize);
@@ -230,6 +230,10 @@ public class MainScreen implements TextDraw {
 		_screenWriter.drawString(x, y, sb.toString());
 	}
 
+	/**********************************************************
+	 * RUN LOOP: INPUT RETRIEVAL
+	 **********************************************************/
+
 	/**
 	 * Runs the application until the user presses Escape
 	 * 
@@ -272,6 +276,10 @@ public class MainScreen implements TextDraw {
 		} else if (kind == Key.Kind.F4 && key.isAltPressed()) {
 			_keepRunning = false;
 		} else if (kind == Key.Kind.F2) {
+			_hangmanGame.createGame();
+			rebuildScreen();
+			_screen.refresh();
+		} else if (kind == Key.Kind.Home) {
 			_hangmanGame.createGame();
 			rebuildScreen();
 			_screen.refresh();
