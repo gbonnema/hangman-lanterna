@@ -59,7 +59,7 @@ public class WordProgressPanel extends AbstractPanel implements Observer {
 		if (o instanceof HangmanGame) {
 			HangmanGame game = (HangmanGame) o;
 			_guessArray = game.getWordProgressArray();
-			refreshEntry();
+			refresh();
 			refreshScreen();
 		}
 	}

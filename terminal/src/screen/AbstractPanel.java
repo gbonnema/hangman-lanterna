@@ -15,17 +15,19 @@ import com.googlecode.lanterna.terminal.TerminalPosition;
  */
 public abstract class AbstractPanel {
 
-	private final TerminalPosition	_defTopLeft	= new TerminalPosition(0, 0);
-	private final TerminalPosition	_defSize		= new TerminalPosition(10, 10);
+	private final TerminalPosition _defTopLeft = new TerminalPosition(0, 0);
+	private final TerminalPosition _defSize = new TerminalPosition(10, 10);
 
-	private int											_padding		= 2;
+	private int _padding = 2;
 
-	private TextDraw								_mainScreen;
-	private ScreenWriter						_absScreenWriter;
-	private TerminalPosition				_absTopLeftCorner;
-	private TerminalPosition				_absPanelSize;
-	private int											_absLeft, _absRight, _absTop, _absBottom;
-	private int											_height, _width;
+	private TextDraw _mainScreen;
+	private String _title;
+
+	private ScreenWriter _absScreenWriter;
+	private TerminalPosition _absTopLeftCorner;
+	private TerminalPosition _absPanelSize;
+	private int _absLeft, _absRight, _absTop, _absBottom;
+	private int _height, _width;
 
 	/**
 	 * Constructor for this panel.
@@ -36,11 +38,15 @@ public abstract class AbstractPanel {
 	 *          the length and width of the panel in columns and rows.
 	 */
 	public AbstractPanel(TextDraw mainScreen) {
+		this(mainScreen, "");
+	}
+
+	public AbstractPanel(TextDraw mainScreen, String title) {
 		_mainScreen = mainScreen;
 		resetPanel(_defTopLeft, _defSize);
 		_absScreenWriter = _mainScreen.getAbsScreenWriter();
 		calcBorders();
-		/* make sure the content is on screen */
+		_title = title;
 	}
 
 	/**
@@ -71,6 +77,15 @@ public abstract class AbstractPanel {
 	public void drawBorder() {
 		drawBox(new TerminalPosition(0, 0), new TerminalPosition(getWidth() - 1,
 				getHeight() - 1));
+		drawTitle();
+	}
+
+	private void drawTitle() {
+		int halfTitleWidth = _title.length() / 2;
+		int x = (getWidth() - 1) / 2 - halfTitleWidth;
+		int y = 0;
+		ScreenCharacterStyle style = ScreenCharacterStyle.Bold;
+		drawString(x, y, _title, style);
 	}
 
 	/**

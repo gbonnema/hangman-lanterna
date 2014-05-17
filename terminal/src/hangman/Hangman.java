@@ -23,6 +23,7 @@ public class Hangman {
 	private String _hideWord;
 	private ArrayList<Character> _correctlyGuessedCharArray;
 	private ArrayList<Character> _initialGuessCharArray;
+	private ArrayList<Guess> _guessHistory;
 	private int _phase;
 
 	private HangmanDoc _doc = new HangmanDoc();
@@ -51,6 +52,7 @@ public class Hangman {
 		_hangFig = new HangFig();
 		_correctlyGuessedCharArray = new ArrayList<>();
 		_initialGuessCharArray = new ArrayList<>();
+		_guessHistory = new ArrayList<>();
 		for (int i = 0; i < _hideWord.length(); i++) {
 			_correctlyGuessedCharArray.add('_');
 			_initialGuessCharArray.add('_');
@@ -58,47 +60,45 @@ public class Hangman {
 	}
 
 	/**
-	 * This method returns a character array containing the character in the
-	 * positions that it occurs or null if none is found.
+	 * This method updates the guess into the guessed characters array, and
+	 * determines whether the prisoner was saved or executed or awaiting
+	 * execution. If you offer the same character multiple times, the effect
+	 * should be the same every time, until the word is guessed. After that
+	 * nothing more registers.
 	 * 
 	 * @param charStr
-	 *          the specified character
-	 * @return an array containing the positions of the hidden word with the
-	 *         specified character where it is in the word and underscore where it
-	 *         is not. If the character was not found, the initial array is
-	 *         returned where every character has an underscore. if the phase has
-	 *         ended, then null is returned in stead.
+	 *          the specified character given as a String.
 	 */
-	public ArrayList<Character> guess(String charStr) {
+	public void guess(String charStr) {
 		/* Sanity input check */
 		boolean charStrIsOne = charStr.length() == 1;
 		Utils.checkArg(charStrIsOne, "Error: charStr should be 1 character.");
 
+		char ch = charStr.charAt(0);
+		if (isDupGuess(ch)) {
+			return;
+		}
+
+		boolean inWord = false;
 		ArrayList<Character> resultingHits = null;
 		if (_status == Status.GUESSING) {
-			char ch = charStr.charAt(0);
 			resultingHits = createHitList(ch);
+			updateGuessedWord(resultingHits);
 			if (guessedWord()) {
 				_status = Status.WORD_GUESSED;
+			} else {
+				if (wrongGuess(resultingHits)) {
+					inWord = false;
+					_phase++;
+				} else {
+					inWord = true;
+				}
+				if (executionPhase()) {
+					_status = Status.WORD_NOT_GUESSED;
+				}
 			}
-			updateGuessedWord(resultingHits);
-
+			_guessHistory.add(new Guess(ch, inWord, resultingHits));
 		}
-		return resultingHits;
-	}
-
-	/**
-	 * @return
-	 */
-	private boolean guessedWord() {
-		boolean emptyCharFound = false;
-		for (int i = 0; i < _correctlyGuessedCharArray.size(); i++) {
-			if (_correctlyGuessedCharArray.get(i) == '_') {
-				emptyCharFound = true;
-				break;
-			}
-		}
-		return !emptyCharFound;
 	}
 
 	/**
@@ -123,39 +123,40 @@ public class Hangman {
 	}
 
 	/**
-	 * This method unites the result from guess() with the guessed characters up
-	 * until this point.
-	 * 
-	 * @param chArr
-	 *          The guess array returned from guess();
-	 * @return the guess character array
+	 * @return
 	 */
-	public boolean guessRight(ArrayList<Character> chArr) {
-		boolean result = false;
-		// Check if previous result was null
-		if (chArr == null) {
-			return result;
+	private boolean guessedWord() {
+		boolean emptyCharFound = false;
+		for (int i = 0; i < _correctlyGuessedCharArray.size(); i++) {
+			if (_correctlyGuessedCharArray.get(i) == '_') {
+				emptyCharFound = true;
+				break;
+			}
 		}
-		if (wrongGuess(chArr)) {
-			_phase++;
+		return !emptyCharFound;
+	}
+
+	private boolean isDupGuess(char ch) {
+		boolean found = false;
+		for (Guess guess : _guessHistory) {
+			if (guess._ch == ch) {
+				found = true;
+				break;
+			}
 		}
-		if (executedPhase()) {
-			_status = Status.WORD_NOT_GUESSED;
-		}
-		updateGuessedWord(chArr);
-		return true;
+		return found;
 	}
 
 	/**
-	 * @return
+	 * @return true if the phase past execution phase
 	 */
-	private boolean executedPhase() {
+	private boolean executionPhase() {
 		return _phase >= HangFig.PHASEMAX - 1;
 	}
 
 	/**
 	 * @param chArr
-	 * @return
+	 * @return true if the guessed character is not in the word.
 	 */
 	private boolean wrongGuess(ArrayList<Character> chArr) {
 		return chArr.equals(_initialGuessCharArray);
@@ -163,6 +164,7 @@ public class Hangman {
 
 	/**
 	 * @param chArr
+	 *          a hit list (array) of characters that the guess was a hit.
 	 */
 	private void updateGuessedWord(ArrayList<Character> chArr) {
 		// update a right guess
@@ -185,6 +187,13 @@ public class Hangman {
 	 * @return
 	 */
 	public ArrayList<String> getFigure() {
+		if (isFinished()) {
+			if (wonGuess()) {
+				return _hangFig.getFigureWon();
+			} else {
+				return _hangFig.getFigureLost();
+			}
+		}
 		return _hangFig.getFigure(_phase);
 	}
 
@@ -222,11 +231,30 @@ public class Hangman {
 	}
 
 	/**
+	 * Retrieves and returns the last Guess.
+	 * 
+	 * Remark: Duplicate guesses should not be in here.
+	 * 
+	 * @return the last Guess that was submitted and processed.
+	 */
+	public Guess getLastGuess() {
+		int last = _guessHistory.size() - 1;
+		if (last < 0) {
+			return null;
+		}
+		return _guessHistory.get(last);
+	}
+
+	/**
 	 * 
 	 * @return true if we are still guessing.
 	 */
 	public boolean isGuessing() {
 		return _status == Status.GUESSING;
+	}
+
+	public boolean isFinished() {
+		return !isGuessing();
 	}
 
 	/**
@@ -255,5 +283,39 @@ public class Hangman {
 		result.append(", _phase = ");
 		result.append(_phase);
 		return result.toString();
+	}
+
+	/**
+	 * A helper class to clump together some guess data.
+	 * 
+	 * @author gbonnema
+	 * 
+	 */
+	public class Guess {
+		private char _ch;
+		private boolean _inWord;
+		private ArrayList<Character> _hitList;
+
+		public Guess(char ch, boolean inWord, ArrayList<Character> hitList) {
+			_ch = ch;
+			_inWord = inWord;
+			_hitList = hitList;
+		}
+
+		public boolean contains(char ch) {
+			return ch == _ch;
+		}
+
+		public char getChar() {
+			return _ch;
+		}
+
+		public boolean isInWord() {
+			return _inWord;
+		}
+
+		public ArrayList<Character> getHitList() {
+			return _hitList;
+		}
 	}
 }

@@ -77,9 +77,9 @@ public class MainScreen implements TextDraw {
 
 		initializeScreen();
 
-		_docPanel = new DocPanel(this);
+		_docPanel = new DocPanel(this, "man page");
 		_wordProgressPanel = new WordProgressPanel(this);
-		_figurePanel = new FigurePanel(this);
+		_figurePanel = new FigurePanel(this, "The execution");
 		_gameSolutionPanel = new GameSolutionPanel(this);
 		_gameMessagePanel = new GameMessagePanel(this);
 

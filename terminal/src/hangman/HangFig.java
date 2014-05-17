@@ -15,22 +15,46 @@ import util.Utils;
  */
 public class HangFig {
 
-	private ArrayList<ArrayList<String>>	_figureList;
+	private ArrayList<ArrayList<String>> _figureList;
+	private ArrayList<String> _lostFigure;
+	private ArrayList<String> _wonFigure;
 
 	/* @formatter:off */
-	private static final String[]	F0	= {
-		"                                  ", 
-		"                                  ", 
-		"                                  ", 
-		"                                  ", 
-		"                                  ", 
-		"                                  ", 
+	private static final String[]	won	= {
+		"                                    ", 
+		"          Y O U                     ", 
+		"                                    ", 
+		"        S A V E D     T H E         ", 
+		"                                    ", 
+		"     I N N O C E N T ! ! ! !        ", 
 		};
 	/* @formatter:on */
 
-	public static final int								PHASEMAX						= F0.length;
-	public static final int								HANGMAN_FIG_HEIGHT	= F0.length;
-	public static final int								HANGMAN_FIG_WIDTH		= F0[0].length();
+	/* @formatter:off */
+	private static final String[]	lost	= {
+		"                                    ", 
+		"                                    ", 
+		"          Y O U   L O S T ! ! !     ", 
+		"                                    ", 
+		"                                    ", 
+		"                                    ", 
+		};
+	/* @formatter:on */
+
+	/* @formatter:off */
+	private static final String[]	F0	= {
+		"                                    ", 
+		"                                    ", 
+		"                                    ", 
+		"                                    ", 
+		"                                    ", 
+		"                                    ", 
+		};
+	/* @formatter:on */
+
+	public static final int PHASEMAX = 6;
+	public static final int HANGMAN_FIG_HEIGHT = F0.length;
+	public static final int HANGMAN_FIG_WIDTH = F0[0].length();
 
 	/* @formatter:off */
 	private static final String[]	F1= {
@@ -92,12 +116,22 @@ public class HangFig {
 		_figureList.add(convertArray(F3));
 		_figureList.add(convertArray(F4));
 		_figureList.add(convertArray(F5));
+		_lostFigure = convertArray(lost);
+		_wonFigure = convertArray(won);
 	}
 
 	public ArrayList<String> getFigure(int phase) {
 		Utils.checkArg(phase >= 0 && phase < PHASEMAX, "Phase has illegal value: "
 				+ phase);
 		return _figureList.get(phase);
+	}
+
+	public ArrayList<String> getFigureWon() {
+		return _wonFigure;
+	}
+
+	public ArrayList<String> getFigureLost() {
+		return _lostFigure;
 	}
 
 	private ArrayList<String> convertArray(String[] figure) {

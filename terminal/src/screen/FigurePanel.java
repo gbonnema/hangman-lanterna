@@ -17,13 +17,13 @@ import java.util.Observer;
  */
 public class FigurePanel extends AbstractPanel implements Observer {
 
-	private ArrayList<String>	_figure;
+	private ArrayList<String> _figure;
 
 	/**
 	 * @param mainScreen
 	 */
-	public FigurePanel(TextDraw mainScreen) {
-		super(mainScreen);
+	public FigurePanel(TextDraw mainScreen, String title) {
+		super(mainScreen, title);
 	}
 
 	/*

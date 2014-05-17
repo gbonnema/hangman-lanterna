@@ -18,22 +18,20 @@ import com.googlecode.lanterna.terminal.TerminalPosition;
  */
 public class DocPanel extends AbstractPanel {
 
-	private TextView					view;
-	private TerminalPosition	origin;
-	private String						_docText;
+	private TextView view;
+	private TerminalPosition origin;
+	private String _docText;
 
 	/**
 	 * Constructor. Calls AbstractPanel constructor.
 	 * 
 	 * @param mainScreen
 	 *          the screen that organises the panels in one screen.
-	 * @param topleftCorner
-	 *          the topleft corner of the panel.
-	 * @param size
-	 *          the width and height of the panel.
+	 * @param title
+	 *          The string to show in the border.
 	 */
-	public DocPanel(TextDraw mainScreen) {
-		super(mainScreen);
+	public DocPanel(TextDraw mainScreen, String title) {
+		super(mainScreen, title);
 		origin = new TerminalPosition(0, 0);
 		/* get the text */
 		HangmanDoc docText = new HangmanDoc();
@@ -43,14 +41,21 @@ public class DocPanel extends AbstractPanel {
 	}
 
 	/**
+	 * Constructor. Calls AbstractPanel constructor with default empty title.
+	 * 
+	 * @param mainScreen
+	 *          the screen that organizes the panels in one screen.
+	 */
+	public DocPanel(TextDraw mainScreen) {
+		this(mainScreen, "");
+	}
+
+	/**
 	 * creates the long description panel.
 	 */
 	void recreateLongDocPanel() {
 
-		/* set hangman doc area */
-		TerminalPosition bottomRight =
-				new TerminalPosition(getWidth() - 1, getHeight() - 1);
-		drawBox(origin, bottomRight);
+		drawBorder();
 
 		/* Prepare and format the text */
 		view = new TextView();

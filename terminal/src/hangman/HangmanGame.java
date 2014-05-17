@@ -3,6 +3,8 @@
  */
 package hangman;
 
+import hangman.Hangman.Guess;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Observable;
@@ -11,11 +13,6 @@ import util.ExperimentException;
 import util.Utils;
 import vocabulary.Vocab;
 import vocabulary.Vocab.VocabEntry;
-
-/*
- * TODO The dashes of gamepanel clash with the dashes of solution. TODO Right
- * after guessing The message says "next guess" wrongly
- */
 
 /**
  * This is the controller for the game. It understands what hangman is for and
@@ -30,6 +27,7 @@ import vocabulary.Vocab.VocabEntry;
  */
 public class HangmanGame extends Observable {
 
+	/******** Game messages ********************************************/
 	private final String _startMsg = "Guess a character";
 	private final String _startMsgDup =
 			"You already guessed that. Guess another character";
@@ -42,7 +40,7 @@ public class HangmanGame extends Observable {
 	private Vocab _vocab;
 	private Hangman _hangman;
 	private ArrayList<Character> _guessArray;
-	private ArrayList<Character> _guessedArray;
+	// private ArrayList<Character> _guessedArray;
 	private String _gameMessage;
 
 	private VocabEntry _entry;
@@ -62,7 +60,6 @@ public class HangmanGame extends Observable {
 		_entry = _vocab.getRandomEntry();
 		_hangman = new Hangman(_entry._wordNL);
 		_guessArray = _hangman.refreshGuess();
-		_guessedArray = new ArrayList<>();
 		_gameMessage = _startMsg;
 		setChanged();
 		notifyObservers();
@@ -74,50 +71,45 @@ public class HangmanGame extends Observable {
 	 * be checked for the character.
 	 * 
 	 * @param charStr
+	 *          the string containing exactly one character. Throws a runtime
+	 *          exception if it contains more or less than one character.
 	 */
 	public void guess(String charStr) {
 		Utils.checkInternal(_hangman != null, "Internal: _hangman == null.");
-		updateChar(charStr);
-	}
 
-	/*
-	 * Updates the character with a guess in hangman.
-	 */
-	private void updateChar(String charStr) {
 		Character ch = charStr.charAt(0);
-		// Check finished
-		if (!_hangman.isGuessing()) {
-			updateHangmanResponse(null);
-			return;
+		// Are we still guessing?
+		if (_hangman.isFinished()) {
+			_gameMessage = _hangman.wonGuess() ? _endMsgWon : _endMsgLost;
+		} else {
+			// We are still guessing : check for duplicate
+			if (wasCharGuessed(ch)) {
+				_gameMessage = _startMsgDup;
+				return;
+			}
+
+			_hangman.guess(charStr);
+
+			if (_hangman.isGuessing()) {
+				Guess guess = _hangman.getLastGuess();
+				_gameMessage = guess.isInWord() ? _contMsgRight : _contMsgWrong;
+			} else {
+				_gameMessage = _hangman.wonGuess() ? _endMsgWon : _endMsgLost;
+			}
 		}
-		// We are still guessing
-		// check duplicate
-		if (_guessedArray.contains(ch)) {
-			_gameMessage = _startMsgDup;
-			return;
-		}
-		// Ask: is it in the word?
-		_guessedArray.add(ch);
-		ArrayList<Character> chArr = _hangman.guess(charStr);
-		_gameMessage = updateHangmanResponse(chArr);
-		/* Send notify to observers */
+
 		setChanged();
 		notifyObservers();
 	}
 
 	/**
-	 * Check hangman's response.
-	 * 
-	 * @param chArr
+	 * @param ch
+	 *          the character to be checked.
+	 * @return true if the character was guessed earlier.
 	 */
-	private String updateHangmanResponse(ArrayList<Character> chArr) {
-
-		String response;
-		response = _hangman.guessRight(chArr) ? _contMsgRight : _contMsgWrong;
-		if (!_hangman.isGuessing()) {
-			response = _hangman.wonGuess() ? _endMsgWon : _endMsgLost;
-		}
-		return response;
+	private boolean wasCharGuessed(Character ch) {
+		Guess lastGuess = _hangman.getLastGuess();
+		return lastGuess != null && lastGuess.contains(ch);
 	}
 
 	/**
@@ -147,14 +139,6 @@ public class HangmanGame extends Observable {
 	 */
 	public String getGameMessage() {
 		return _gameMessage;
-	}
-
-	public ArrayList<Character> getGuessedCharacters() {
-		ArrayList<Character> result = new ArrayList<>();
-		for (char ch : _guessedArray) {
-			result.add(ch);
-		}
-		return result;
 	}
 
 }
