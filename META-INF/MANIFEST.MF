@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Main-Class: screen.Experiment
+Class-Path: $CLASSPATH
+
+Name: screen/
+Sealed: true
+
+Name: util/
+Sealed: true
+
+Name: hangman/
+Sealed: true
+
+Name: vocabulary/
+Sealed: true
+

@@ -39,7 +39,6 @@ import com.googlecode.lanterna.terminal.TerminalPosition;
  * TODO add Legend to AbstractPanel
  */
 /*
- * TODO add title to AbstractPanel
  */
 /**
  * The main screen for this experiment: a hangman game on text screens using
@@ -50,7 +49,7 @@ import com.googlecode.lanterna.terminal.TerminalPosition;
  */
 public class MainScreen implements TextDraw {
 
-	private final String _version = "0.2";
+	private final String _version = "0.3";
 
 	private final int _padding = 2;
 
@@ -74,7 +73,7 @@ public class MainScreen implements TextDraw {
 	 * Prompt fields
 	 */
 	private int _promptLine;
-	int _centerline;
+	int _centerCol;
 	private String _promptChar;
 	private TerminalPosition _prompt;
 	private TerminalPosition _promptStr;
@@ -85,7 +84,7 @@ public class MainScreen implements TextDraw {
 	 * @throws ExperimentException
 	 *           when something is wrong.
 	 */
-	public MainScreen() throws ExperimentException {
+	public MainScreen() {
 
 		_screen = TerminalFacade.createScreen();
 		_screen.startScreen();
@@ -133,7 +132,7 @@ public class MainScreen implements TextDraw {
 	 * 
 	 * @throws ExperimentException
 	 */
-	private void rebuildScreen() throws ExperimentException {
+	private void rebuildScreen() {
 
 		initTerminalSize();
 		initializePrompt();
@@ -161,7 +160,7 @@ public class MainScreen implements TextDraw {
 	private void initTerminalSize() {
 		_screenWidth = _screen.getTerminalSize().getColumns();
 		_screenHeight = _screen.getTerminalSize().getRows();
-		_centerline = _screenWidth / 2;
+		_centerCol = _screenWidth / 2;
 	}
 
 	/**
@@ -169,7 +168,7 @@ public class MainScreen implements TextDraw {
 	 */
 	private void rebuildDocPanel() {
 
-		int left = _centerline + _padding;
+		int left = _centerCol + _padding;
 		int y = _padding;
 		TerminalPosition topLeft = new TerminalPosition(left, y);
 
@@ -190,7 +189,7 @@ public class MainScreen implements TextDraw {
 		int y = _padding;
 		TerminalPosition topLeft = new TerminalPosition(left, y);
 
-		int width = _centerline - _padding - left;
+		int width = _centerCol - _padding - left;
 		int height = HangFig.HANGMAN_FIG_HEIGHT + 2 * _padding;
 		TerminalPosition panelSize = new TerminalPosition(width, height);
 
@@ -206,7 +205,7 @@ public class MainScreen implements TextDraw {
 		int y = _figurePanel.getTop() + _figurePanel.getHeight();
 		TerminalPosition topLeft = new TerminalPosition(left, y);
 
-		int width = _centerline - _padding - left;
+		int width = _centerCol - _padding - left;
 		int height = (int) ((_screenHeight - _padding - y) * 0.6);
 		TerminalPosition panelSize = new TerminalPosition(width, height);
 
@@ -263,7 +262,7 @@ public class MainScreen implements TextDraw {
 	 * screen.clear() uses default colors which is why we need to wipe the screen
 	 * by writing empty lines.
 	 */
-	private void wipeScreen() throws ExperimentException {
+	private void wipeScreen() {
 		for (int i = 0; i < _screen.getTerminalSize().getRows(); i++) {
 			drawHorLine(i, " ");
 		}
@@ -304,7 +303,7 @@ public class MainScreen implements TextDraw {
 	 * @throws ExperimentException
 	 *           for failed readInput.
 	 */
-	public void run() throws ExperimentException {
+	public void run() {
 
 		_keepRunning = true;
 		_hangmanGame.createGame();
@@ -327,7 +326,7 @@ public class MainScreen implements TextDraw {
 
 	}
 
-	private void handleInput(Key key) throws ExperimentException {
+	private void handleInput(Key key) {
 		Kind kind = key.getKind();
 		if (kind == Key.Kind.Escape) {
 			_keepRunning = false;

@@ -20,11 +20,9 @@ package hangman;
 
 import hangman.Hangman.Guess;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Observable;
 
-import util.ExperimentException;
 import util.Utils;
 import vocabulary.Vocab;
 import vocabulary.Vocab.VocabEntry;
@@ -60,13 +58,15 @@ public class HangmanGame extends Observable {
 
 	private VocabEntry _entry;
 
-	public HangmanGame() throws ExperimentException {
+	public HangmanGame() {
+		String emsg = "";
 		try {
 			_vocab = new Vocab("nederlands.csv");
-		} catch (IOException e) {
-			throw new ExperimentException(
-					"File not found or not readable. Error message: " + e.getMessage());
+		} catch (Exception e) {
+			emsg = "File not found or not readable. Error message: " + e.getMessage();
+			_vocab = null;
 		}
+		Utils.checkInternal(_vocab != null, emsg);
 		_entry = _vocab.new VocabEntry(0, "not a word", "not a word");
 		_gameMessage = _startMsg;
 	}
