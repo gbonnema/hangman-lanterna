@@ -26,6 +26,8 @@ public class MainWindow {
 		_gui.getScreen().startScreen();
 		_gui.setTitle("GUI Hangman == not implemented yet ==");
 		_gui.getScreen().stopScreen();
+		_gui.invalidate();
+		_gui.getScreen().refresh();
 	}
 
 	public void run() {

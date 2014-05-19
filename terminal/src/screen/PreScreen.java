@@ -106,8 +106,13 @@ public class PreScreen implements TextDraw {
 		Kind kind = key.getKind();
 		if (kind == Key.Kind.Escape) {
 			_keepRunning = false;
-		} else {
+		} else if (kind == Key.Kind.NormalKey) {
 			screenType = handleScreenInput(key);
+			_screen.refresh();
+		} else {
+			_screenTypePanel
+					.setMessage("Key not recognized. Please use ESC to end or enter the choice.");
+			_screenTypePanel.refresh();
 			_screen.refresh();
 		}
 		return screenType;
@@ -116,12 +121,10 @@ public class PreScreen implements TextDraw {
 	private ScreenType handleScreenInput(Key key) {
 		ScreenType screenType = ScreenType.UNKNOWN;
 		Character ch = key.getCharacter();
-		if (ch.equals("g") || ch.equals("G")) {
+		if (ch.equals('g') || ch.equals('G')) {
 			screenType = ScreenType.GUI;
-		} else if (ch.equals("s") || ch.equals("S")) {
+		} else if (ch.equals('s') || ch.equals(new Character('S'))) {
 			screenType = ScreenType.SCREEN;
-		} else {
-			screenType = ScreenType.UNKNOWN;
 		}
 		return screenType;
 	}

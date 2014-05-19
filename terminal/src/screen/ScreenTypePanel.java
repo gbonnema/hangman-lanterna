@@ -12,11 +12,14 @@ public class ScreenTypePanel extends AbstractPanel {
 
 	private final String _query = "Choose \"[g]ui\" or \"[s]creen\": ";
 
+	private String _message;
+
 	/**
 	 * @param mainScreen
 	 */
 	public ScreenTypePanel(TextDraw mainScreen) {
 		super(mainScreen);
+		_message = "";
 	}
 
 	/**
@@ -35,6 +38,13 @@ public class ScreenTypePanel extends AbstractPanel {
 	@Override
 	public void refresh() {
 		drawString(getPadding(), getPadding(), _query);
+		drawString(getPadding(), getPadding() + 2, _message);
+		refreshScreen();
+		_message = "";
+	}
+
+	public void setMessage(String message) {
+		_message = message;
 	}
 
 }

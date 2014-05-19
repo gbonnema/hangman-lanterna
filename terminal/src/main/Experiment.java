@@ -38,6 +38,12 @@ public class Experiment {
 	// }
 
 	/**
+	 * Loop around :
+	 * 
+	 * 1. ask screentype 2. play game
+	 * 
+	 * Until the user wants to quit (screentype will be unknown).
+	 * 
 	 * @param args
 	 */
 	public static void main(String[] args) {
@@ -53,7 +59,6 @@ public class Experiment {
 		ScreenType type = ScreenType.SCREEN;
 		PreScreen preScreen = new PreScreen();
 		type = preScreen.run();
-		preScreen.stopScreen();
 
 		if (type == ScreenType.SCREEN) {
 			MainScreen screen = new MainScreen();
