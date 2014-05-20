@@ -16,6 +16,8 @@ public class MainWindow {
 
 	private GUIScreen _gui;
 
+	private HangmanWindow _hangmanWindow;
+
 	/**
 	 * 
 	 */
@@ -24,10 +26,14 @@ public class MainWindow {
 		Utils.checkInternal(_gui != null,
 				"Creating GUI screen failed .... horribly.");
 		_gui.getScreen().startScreen();
-		_gui.setTitle("GUI Hangman == not implemented yet ==");
+		_hangmanWindow = new HangmanWindow("Window for playing hangman");
+		_gui.showWindow(_hangmanWindow);
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			// Squelch
+		}
 		_gui.getScreen().stopScreen();
-		_gui.invalidate();
-		_gui.getScreen().refresh();
 	}
 
 	public void run() {
